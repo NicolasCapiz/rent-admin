@@ -1,14 +1,5 @@
 # Analytics Dashboard
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/ed5e5a46-63f2-48c5-91a0-7a6a129b37f0/deploy-status)](https://app.netlify.com/sites/bejewelled-kitten-6e2434/deploys)
-
-
-Created with Nuxt 3 + Tailwind CSS
-
-Tailwind config was copied from [shadcn-ui](https://ui.shadcn.com/)
-
-![Cover](/public/cover.png)
-
 ## Modules Used
 
 - @nuxtjs/tailwindcss
