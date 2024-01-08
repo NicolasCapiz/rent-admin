@@ -7,6 +7,7 @@ export default defineNuxtConfig({
     "@vueuse/nuxt",
     "nuxt-headlessui",
     "@morev/vue-transitions/nuxt",
+    "@pinia/nuxt",
   ],
   tailwindcss: { exposeConfig: true },
   headlessui: { prefix: "H" },
@@ -21,5 +22,5 @@ export default defineNuxtConfig({
         { rel: "preconnect", href: "https://rsms.me/" },
       ],
     },
-  },
+  }
 });

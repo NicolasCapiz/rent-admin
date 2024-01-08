@@ -1,6 +1,4 @@
 <script setup lang="ts">
-  import { ref } from "vue";
-  const layout: string = ref("default");
 </script>
 <template>
   <div>
@@ -12,7 +10,7 @@
 
       <!-- Main Section -->
       <main class="py-5 lg:col-span-9">
-        <NuxtLayout :name="layout">
+        <NuxtLayout>
           <NuxtPage />
         </NuxtLayout>
       </main>
