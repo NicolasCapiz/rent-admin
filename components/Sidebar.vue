@@ -29,52 +29,24 @@
   ];
   const menu = [
     {
-      title: "Dashboard",
+      title: "Inicio",
       icon: "heroicons:home",
+      link: "/default",
     },
     {
-      title: "Customers",
+      title: "Inquilinos",
       icon: "heroicons:user-group",
-      items: [
-        { title: "List" },
-        { title: "Create" },
-        { title: "Edit" },
-        { title: "Delete" },
-        { title: "Details" },
-      ],
+      link: "/renter",
     },
     {
-      title: "Orders",
-      icon: "heroicons:shopping-cart",
-      items: [
-        { title: "List" },
-        { title: "Create" },
-        { title: "Edit" },
-        { title: "Delete" },
-        { title: "Details" },
-      ],
+      title: "Locales",
+      icon: "heroicons:building-storefront",
+      link: "/property",
     },
     {
-      title: "Products",
-      icon: "heroicons:cube",
-      items: [
-        { title: "List" },
-        { title: "Create" },
-        { title: "Edit" },
-        { title: "Delete" },
-        { title: "Details" },
-      ],
-    },
-    {
-      title: "Staff",
-      icon: "heroicons:user",
-      items: [
-        { title: "List" },
-        { title: "Create" },
-        { title: "Edit" },
-        { title: "Delete" },
-        { title: "Details" },
-      ],
+      title: "Pagos",
+      icon: "heroicons:currency-dollar",
+      link: "/payment",
     },
     {
       title: "Analytics",
