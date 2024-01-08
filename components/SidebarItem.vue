@@ -1,12 +1,17 @@
+<script setup lang="ts">
+  import type { Sidebar } from '@/types/sidebar'
+  const props = defineProps<{
+    links?: Sidebar[];
+  }>();
+</script>
 <template>
   <div class="flex flex-col">
-    <template v-for="(l, i) in links" :key="i">
+    <template v-for="(l) in props.links" :key="i">
       <NuxtLink
-        v-if="!l.items"
-        to="/"
+        :to="{ path: l.link }"
         class="inline-flex items-center gap-4 p-3 px-4 text-left text-[15px]"
       >
-        <Icon v-if="l.icon" :name="l.icon" class="h-5 w-5 text-muted-foreground" />
+        <Icon v-if="l.icons" :name="l.icons" class="h-5 w-5 text-muted-foreground" />
         <p class="truncate">
           {{ l.title }}
         </p>
@@ -14,9 +19,3 @@
     </template>
   </div>
 </template>
-
-<script setup lang="ts">
-  const props = defineProps<{
-    links?: any[];
-  }>();
-</script>

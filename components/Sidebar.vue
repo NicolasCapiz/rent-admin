@@ -7,51 +7,67 @@
 
       <div class="mt-auto">
         <SidebarItem :links="bottomMenu" />
+        <Button
+          icon="heroicons:arrow-left-on-rectangle"
+          title="Logout"
+          v-if="isLogin"
+          @click="toggleLogout"
+        />
+        <Button
+          title="Login"
+          v-if="!isLogin"
+          @click="toggleLogout"
+        />
       </div>
     </div>
   </aside>
 </template>
 
 <script setup lang="ts">
-  const bottomMenu = [
+  import type { Sidebar } from "@/types/sidebar";
+  import Button from "@/components/buttons/Button.vue";
+
+  const bottomMenu = ref<Sidebar[]>([
     {
       title: "Settings",
-      icon: "heroicons:cog-8-tooth",
+      icons: "heroicons:cog-8-tooth",
+      link: "/settings",
     },
     {
       title: "Help",
-      icon: "heroicons:question-mark-circle",
+      icons: "heroicons:question-mark-circle",
+      link: "/help",
     },
-    {
-      title: "Logout",
-      icon: "heroicons:arrow-left-on-rectangle",
-    },
-  ];
-  const menu = [
+  ]);
+  const menu = ref<Sidebar[]>([
     {
       title: "Inicio",
-      icon: "heroicons:home",
-      link: "/default",
+      icons: "heroicons:home",
+      link: "/home",
     },
     {
       title: "Inquilinos",
-      icon: "heroicons:user-group",
-      link: "/renter",
+      icons: "heroicons:user-group",
+      link: "/rents",
     },
     {
       title: "Locales",
-      icon: "heroicons:building-storefront",
+      icons: "heroicons:building-storefront",
       link: "/property",
     },
     {
       title: "Pagos",
-      icon: "heroicons:currency-dollar",
+      icons: "heroicons:currency-dollar",
       link: "/payment",
     },
     {
       title: "Analytics",
-      icon: "heroicons:chart-pie",
-      items: [{ title: "Overview" }, { title: "Statistics" }, { title: "Trends" }],
+      icons: "heroicons:chart-pie",
+      link: "/analytics",
     },
-  ];
+  ]);
+  const isLogin = ref<boolean>(true);
+  const toggleLogout = () => {
+    isLogin.value = !isLogin.value;
+  };
 </script>
