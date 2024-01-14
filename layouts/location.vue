@@ -1,6 +1,6 @@
 <template>
   <div class="property">
-    <h1>property</h1>
+    <h1>location</h1>
     <slot />
   </div>
 </template>

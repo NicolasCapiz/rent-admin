@@ -48,12 +48,12 @@
     {
       title: "Inquilinos",
       icons: "heroicons:user-group",
-      link: "/rents",
+      link: "/renter",
     },
     {
       title: "Locales",
       icons: "heroicons:building-storefront",
-      link: "/property",
+      link: "/location",
     },
     {
       title: "Pagos",

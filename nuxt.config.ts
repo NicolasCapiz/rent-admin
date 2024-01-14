@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+// import proxy from "@nuxtjs/proxy";
+
 export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [
@@ -8,6 +10,8 @@ export default defineNuxtConfig({
     "nuxt-headlessui",
     "@morev/vue-transitions/nuxt",
     "@pinia/nuxt",
+    // "@nuxt/http",
+    // "@nuxtjs/proxy",
   ],
   tailwindcss: { exposeConfig: true },
   headlessui: { prefix: "H" },
@@ -22,5 +26,9 @@ export default defineNuxtConfig({
         { rel: "preconnect", href: "https://rsms.me/" },
       ],
     },
-  }
+  },
+  // proxy: {
+  //   "/api": "http://localhost:3000",
+  // },
+  // serverMiddleware: ["~/api/index.js"],
 });
