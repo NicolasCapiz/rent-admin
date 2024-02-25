@@ -6,18 +6,14 @@
       <SidebarItem :links="menu" />
 
       <div class="mt-auto">
-        <SidebarItem :links="bottomMenu" />
+        <SidebarItem _:links="bottomMenu" />
         <Button
           icon="heroicons:arrow-left-on-rectangle"
           title="Logout"
           v-if="isLogin"
           @click="toggleLogout"
         />
-        <Button
-          title="Login"
-          v-if="!isLogin"
-          @click="toggleLogout"
-        />
+        <Button title="Login" v-if="!isLogin" @click="toggleLogout" />
       </div>
     </div>
   </aside>
@@ -27,18 +23,18 @@
   import type { Sidebar } from "@/types/sidebar";
   import Button from "@/components/buttons/Button.vue";
 
-  const bottomMenu = ref<Sidebar[]>([
-    {
-      title: "Settings",
-      icons: "heroicons:cog-8-tooth",
-      link: "/settings",
-    },
-    {
-      title: "Help",
-      icons: "heroicons:question-mark-circle",
-      link: "/help",
-    },
-  ]);
+  // const bottomMenu = ref<Sidebar[]>([
+  //   {
+  //     title: "Settings",
+  //     icons: "heroicons:cog-8-tooth",
+  //     link: "/settings",
+  //   },
+  //   {
+  //     title: "Help",
+  //     icons: "heroicons:question-mark-circle",
+  //     link: "/help",
+  //   },
+  // ]);
   const menu = ref<Sidebar[]>([
     {
       title: "Inicio",
@@ -60,11 +56,11 @@
       icons: "heroicons:currency-dollar",
       link: "/payment",
     },
-    {
-      title: "Analytics",
-      icons: "heroicons:chart-pie",
-      link: "/analytics",
-    },
+    // {
+    //   title: "Analytics",
+    //   icons: "heroicons:chart-pie",
+    //   link: "/analytics",
+    // },
   ]);
   const isLogin = ref<boolean>(true);
   const toggleLogout = () => {

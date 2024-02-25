@@ -3,6 +3,4 @@
     layout: "location",
   });
 </script>
-<template>
-
-</template>
+<template></template>
