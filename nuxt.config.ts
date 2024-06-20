@@ -1,5 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 // import proxy from "@nuxtjs/proxy";
+import { defineNuxtConfig } from "nuxt/config";
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
@@ -13,6 +14,7 @@ export default defineNuxtConfig({
     // "@nuxt/http",
     // "@nuxtjs/proxy",
   ],
+  // plugins: ["~/plugins/notify.ts"],
   tailwindcss: { exposeConfig: true },
   headlessui: { prefix: "H" },
   app: {

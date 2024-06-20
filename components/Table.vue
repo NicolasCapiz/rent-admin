@@ -1,141 +1,129 @@
 <script setup lang="ts">
   import type { HeadTable } from "@/types/headTable";
   import type { BodyTable } from "@/types/bodyTable";
-  import type { OptionsTable } from "@/types/optionsTable";
   import { useSelect } from "@/composables/useSelect";
+  import { ref, onMounted, watch } from "vue";
 
   const props = defineProps<{
     head: HeadTable[];
-    options: OptionsTable[];
     content: BodyTable[];
     model: string;
+    isEditable?: boolean;
+    add?: boolean;
+    remove?: boolean;
   }>();
 
-  const setModified = (row: BodyTable) => {
-    row.modified = true;
+  const setEdited = (row: BodyTable) => {
+    row.isEdited = true;
   };
 
-  const getValue = (obj: any, keyPath: string) => {
-    const keys = keyPath.split("."); // Divide la ruta de la clave en un array de claves
-    let value = obj;
-    // Itera sobre las claves y accede a la propiedad correspondiente en el objeto
-    for (const key of keys) {
-      value = value[key];
-    }
-    return value; // Retorna el valor final encontrado
-  };
-
-  // Variable para controlar la selección de todas las filas
-  const selectAll = ref(false);
-  const showDelete = ref(false);
+  // Variables para controlar los estados
   const isLoading = ref(false);
-  let showChanges = ref(false);
-  let isEdit = ref(false);
+  const showChanges = ref(false);
+  const isEdit = ref(false);
   const select = useSelect();
-  const refresh = () => refreshNuxtData(props.model);
+  const originalContent = ref<BodyTable[]>([]);
 
-  const options = (option: any) => {
-    console.log("option -->", option);
-
-    // Mostrar u ocultar los checkboxes de eliminación en todas las filas
-    props.content.forEach((row) => {
-      row.isEdit = !row.isEdit;
-    });
-    if (option == "delete") {
-      console.log("entre");
-
-      showDelete.value = true;
+  const fetchData = async () => {
+    isLoading.value = true;
+    try {
+      const response: any = await $fetch(props.model, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        baseURL: "http://localhost:3307",
+      });
+      props.content.splice(0, props.content.length, ...response);
+      originalContent.value = JSON.parse(JSON.stringify(props.content)); // Guardar el estado original
+    } catch (error) {
+      console.error("Error al obtener datos:", error);
+    } finally {
+      isLoading.value = false;
     }
-    if (option == "edit") {
-      isEdit.value = true;
-    }
+  };
 
+  const startEdit = () => {
+    isEdit.value = true;
     showChanges.value = true;
+    originalContent.value = JSON.parse(JSON.stringify(props.content)); // Guardar el estado original
   };
 
   const cancel = () => {
-    // Limpiar la selección de filas y ocultar los botones "Aplicar" y "Cancelar"
-    props.content.forEach((row) => {
-      row.delete = false;
-    });
+    // Restaurar el estado original
+    props.content.splice(0, props.content.length, ...originalContent.value);
     showChanges.value = false;
     isEdit.value = false;
-    showDelete.value = false;
+  };
+
+  const addRow = () => {
+    const newRow = {
+      isNew: true,
+    } as BodyTable;
+    props.content.push(newRow);
+  };
+
+  const toggleDelete = (row: BodyTable) => {
+    row.isDeleted = !row.isDeleted;
   };
 
   const apply = async () => {
-    // Obtener las filas seleccionadas
-    console.log("--->", props.content);
-    console.log("isEdit", isEdit.value);
+    let updateRows = props.content.filter((row) => row.isEdited || row.isNew || row.isDeleted);
+    updateRows = updateRows.map((row) => {
+      const { selected, ...cleanedRow } = row;
+      return cleanedRow; // Retornar el objeto row sin el campo 'selected'
+    });
 
-    if (!isEdit.value) {
-      console.log("entre acaaa");
-
-      const selectedRowsIds = props.content.filter((row) => row.delete).map((row) => row.id);
-      try {
-        const response: any = await $fetch(props.model, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          baseURL: "http://localhost:3307",
-          body: JSON.stringify(selectedRowsIds),
-        });
-
-        await refresh();
-        if (response.status == "ok") {
-          console.log("Filas eliminadas exitosamente");
-        } else {
-          console.error("Error al eliminar filas");
-        }
-      } catch (error) {
-        console.error("Error de red:", error);
-      }
-    } else {
-      let updateRows = props.content.filter((row) => row.modified);
-      console.log("updateRows", updateRows);
-      updateRows = updateRows.map((row) => {
-        const { selected, modified, isEdit, delete: any, ...cleanedRow } = row;
-        return cleanedRow; // Retornar el objeto row sin los campos especificados
+    try {
+      const response: any = await $fetch(props.model, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        baseURL: "http://localhost:3307",
+        body: updateRows,
       });
 
-      try {
-        const response: any = await $fetch(props.model, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          baseURL: "http://localhost:3307",
-          body: JSON.stringify(updateRows),
+      if (response.status === "success") {
+        // Filtrar las filas eliminadas de props.content
+        // props.content = props.content.filter((row) => !row.isDeleted);
+        isEdit.value = false;
+        showChanges.value = false;
+        await fetchData(); // Recargar los datos desde el servidor
+        props.content.forEach((row) => {
+          row.isEdited = false;
+          row.isNew = false;
+          row.isDeleted = false;
         });
-
-        if (response.ok) {
-          console.log("Filas eliminadas exitosamente");
-        } else {
-          console.error("Error al eliminar filas");
-        }
-      } catch (error) {
-        console.error("Error de red:", error);
+        console.log("Filas actualizadas exitosamente");
+      } else {
+        console.error("Error al actualizar filas");
       }
+    } catch (error) {
+      console.error("Error de red:", error);
     }
-
-    // Ocultar los botones "Aplicar" y "Cancelar"
-    showChanges.value = false;
   };
 
   onMounted(async () => {
+    await fetchData();
     for (const column of props.head) {
       if (column.isSelect && column.model) await select.fetchOptions(column.model, isLoading);
     }
   });
 
-  // Asegúrate de que cada fila tenga una propiedad "showChanges" y "selected"
-  props.content.forEach((row) => {
-    row.delete = false;
-    row.selected = false;
-    row.modified = false;
-  });
+  // Asegúrate de que cada fila tenga una propiedad "isDeleted", "isEdited" e "isNew"
+  watch(
+    () => props.content,
+    (newContent) => {
+      newContent.forEach((row) => {
+        if (row.isDeleted === undefined) row.isDeleted = false;
+        if (row.isNew === undefined) row.isNew = false;
+      });
+    },
+    { deep: true }
+  );
 </script>
+
 <template>
   <div class="w-100 overflow">
     <div class="align-items-center m-2 flex justify-between">
@@ -144,25 +132,30 @@
       </h2>
 
       <div class="flex justify-end">
-        <div v-for="(row, index) in props.options" :key="index">
-          <button
-            class="m-2 rounded bg-blue-500 px-4 py-2 text-white"
-            v-if="!showChanges && row.key"
-            @click="options(row.key)"
-          >
-            {{ row.label }}
-          </button>
-        </div>
+        <button
+          class="m-2 rounded bg-blue-500 px-4 py-2 text-white"
+          v-if="!showChanges && isEditable"
+          @click="startEdit"
+        >
+          Editar
+        </button>
 
         <button
-          class="m-2 rounded bg-green-500 px-4 py-2 text-white"
+          class="m-2 rounded bg-green-500 px-4 py-2 text-white shadow-md hover:bg-green-700"
+          v-if="showChanges && add"
+          @click="addRow"
+        >
+          +
+        </button>
+        <button
+          class="m-2 rounded bg-green-500 px-4 py-2 text-white shadow-md hover:bg-green-700"
           v-if="showChanges"
           @click="apply"
         >
           Aplicar
         </button>
         <button
-          class="m-2 rounded bg-red-500 px-4 py-2 text-white"
+          class="m-2 rounded bg-red-500 px-4 py-2 text-white shadow-md hover:bg-red-700"
           v-if="showChanges"
           @click="cancel"
         >
@@ -177,15 +170,6 @@
           <th v-for="(row, index) in head" :key="index" scope="col" class="px-6 py-3">
             <span v-if="!row.option">{{ row.title }}</span>
           </th>
-          <!-- <th v-for="(row, index) in head" :key="index" scope="col" class="px-6 py-3">
-          <button v-if="!showChanges && row.option" @click="options(row.key)">
-            {{ row.title }}
-          </button>
-        </th>
-        <th>
-          <button v-if="showChanges" @click="apply">Aplicar</button>
-          <button v-if="showChanges" @click="cancel">Cancelar</button>
-        </th> -->
         </tr>
       </thead>
       <tbody>
@@ -193,16 +177,26 @@
           v-for="(row, index) in content"
           :key="index"
           class="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
+          :class="[
+            {
+              'bg-red-100 bg-opacity-50': row.isDeleted,
+              'bg-green-100 bg-opacity-50': row.isNew,
+            },
+            {
+              'dark:bg-red-700 dark:bg-opacity-50': row.isDeleted,
+              'dark:bg-green-700 dark:bg-opacity-50': row.isNew,
+            },
+          ]"
         >
           <td class="w-4 p-4">
             <div class="flex items-center">
-              <input
-                v-model="row.delete"
-                v-if="showDelete"
-                id="checkbox-table-search-1"
-                type="checkbox"
-                class="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
-              />
+              <button
+                v-if="isEdit && remove"
+                @click="toggleDelete(row)"
+                class="flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-700"
+              >
+                &minus;
+              </button>
             </div>
           </td>
           <td v-for="(value, index) in head" :key="index" class="px-6 py-4">
@@ -210,13 +204,14 @@
               v-if="!value.option && value.isSelect"
               v-model="row[value.key]"
               :disabled="!isEdit"
+              @change="setEdited(row)"
             >
               <option v-if="isLoading" disabled value="">Cargando...</option>
               <option
                 else
                 v-for="option of select.options[value.model]"
                 :key="option.id"
-                :value="option"
+                :value="option.id"
               >
                 {{ option[value.selectKey] }}
               </option>
@@ -226,7 +221,7 @@
               :disabled="!isEdit"
               class="border-b border-gray-300 bg-transparent focus:outline-none"
               v-model="row[value.key]"
-              @input="setModified(row)"
+              @input="setEdited(row)"
             />
           </td>
         </tr>

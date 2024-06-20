@@ -30,7 +30,14 @@
         class="flex-column flex flex-wrap items-center justify-between space-y-4 bg-white pb-4 dark:bg-gray-900 md:flex-row md:space-y-0"
       >
         <label for="table-search" class="sr-only">Search</label>
-        <Table :head="head" :content="renters"></Table>
+        <Table
+          model="users/renters"
+          :head="head"
+          :content="renters"
+          :isEditable="true"
+          :add="true"
+          :remove="true"
+        ></Table>
       </div>
     </div>
     <slot />

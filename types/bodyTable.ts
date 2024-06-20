@@ -9,6 +9,8 @@ export type BodyTable = {
   showDelete?: boolean;
   modified?: boolean;
   isEdit?: boolean;
-  delete?: boolean;
+  isEdited?: boolean;
+  isDeleted?: boolean;
+  isNew?: boolean;
   selected?: boolean;
 };

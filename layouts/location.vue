@@ -22,7 +22,7 @@
     },
     {
       title: "Inquilino",
-      key: "manager",
+      key: "managerId",
       model: "users",
       isSelect: true,
       selectKey: "firstName",
@@ -57,7 +57,14 @@
         class="flex-column flex flex-wrap items-center justify-between space-y-4 bg-white pb-4 dark:bg-gray-900 md:flex-row md:space-y-0"
       >
         <label for="table-search" class="sr-only">Search</label>
-        <Table :head="head" model="locations" :options="options" :content="locations"></Table>
+        <Table
+          :head="head"
+          model="locations"
+          :content="locations"
+          :isEditable="true"
+          :add="true"
+          :remove="true"
+        ></Table>
       </div>
     </div>
     <slot />
