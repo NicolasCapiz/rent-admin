@@ -22,6 +22,7 @@
   } from "chart.js";
   import { Line } from "vue-chartjs";
   import colors from "#tailwind-config/theme/colors";
+  import { computed, ref } from "vue";
 
   ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 

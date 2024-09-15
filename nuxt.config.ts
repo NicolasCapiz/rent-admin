@@ -4,6 +4,7 @@ import { defineNuxtConfig } from "nuxt/config";
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
+  // css: ["@/assets/css/tailwind.css"],
   modules: [
     "@nuxtjs/tailwindcss",
     "nuxt-icon",
@@ -14,7 +15,7 @@ export default defineNuxtConfig({
     // "@nuxt/http",
     // "@nuxtjs/proxy",
   ],
-  // plugins: ["~/plugins/notify.ts"],
+  plugins: [{ src: "~/plugins/notyf.js", ssr: false }],
   tailwindcss: { exposeConfig: true },
   headlessui: { prefix: "H" },
   app: {

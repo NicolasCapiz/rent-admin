@@ -1,46 +1,45 @@
 <script setup lang="ts">
+  import { ref } from "vue";
   import Table from "@/components/Table.vue";
   import type { HeadTable } from "@/types/headTable";
   import type { BodyTable } from "@/types/bodyTable";
 
-  components: {
-    Table;
-  }
-  const { data: renters } = await useFetch(`users/renters`, {
-    baseURL: "http://localhost:3307",
-  });
-
-  console.log("data", renters);
+  // Definimos el encabezado de la tabla
   const head = ref<HeadTable[]>([
-    {
-      title: "Nombre",
-      key: "firstName",
-    },
-    {
-      title: "Direccion",
-      key: "email",
-    },
+    { title: "Nombre", key: "firstName" },
+    { title: "Direccion", key: "email" },
   ]);
+
+  // Estado para almacenar los datos de los inquilinos
+  const renters = ref<BodyTable[]>([]);
+
+  // Función para obtener los datos de los inquilinos
+  const fetchRenters = async () => {
+    try {
+      const response = await $fetch<BodyTable[]>("users/renters", {
+        baseURL: "http://localhost:3307",
+      });
+      renters.value = response;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // Llamamos a la función para obtener los datos al montar el componente
+  fetchRenters();
 </script>
+
 <template>
-  <div class="location">
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-      <h1>acaaaaa {{ renters }}</h1>
-      <div
-        class="flex-column flex flex-wrap items-center justify-between space-y-4 bg-white pb-4 dark:bg-gray-900 md:flex-row md:space-y-0"
-      >
-        <label for="table-search" class="sr-only">Search</label>
-        <Table
-          model="users/renters"
-          :head="head"
-          :content="renters"
-          :isEditable="true"
-          :add="true"
-          :remove="true"
-        ></Table>
-      </div>
-    </div>
-    <slot />
+  <div class="renter h-full">
+    <Table
+      model="users/renters"
+      title="Inquilinos"
+      :head="head"
+      :content="renters"
+      :isEditable="true"
+      :add="true"
+      :remove="true"
+    ></Table>
   </div>
 </template>
 <style scoped>

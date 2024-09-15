@@ -4,6 +4,7 @@ import scrollbar from "tailwind-scrollbar";
 
 export default <Partial<Config>>{
   darkMode: "class",
+  content: ["./src/**/*.{vue,js,ts,jsx,tsx}", "./public/index.html"],
   theme: {
     extend: {
       container: {

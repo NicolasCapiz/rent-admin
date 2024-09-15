@@ -1,15 +1,12 @@
 <script setup lang="ts">
+  import { ref } from "vue";
   import Table from "@/components/Table.vue";
   import type { HeadTable } from "@/types/headTable";
   import type { BodyTable } from "@/types/bodyTable";
-  import type { OptionsTable } from "@/types/optionsTable";
 
   components: {
     Table;
   }
-  const { data: locations } = await useFetch(`locations`, {
-    baseURL: "http://localhost:3307",
-  });
 
   const head = ref<HeadTable[]>([
     {
@@ -27,47 +24,34 @@
       isSelect: true,
       selectKey: "firstName",
     },
-    {
-      title: "Eliminar",
-      option: "delete",
-      key: "delete",
-    },
-    {
-      title: "Editar",
-      option: "editar",
-      key: "edit",
-    },
   ]);
 
-  const options = ref<OptionsTable[]>([
-    {
-      label: "Eliminar",
-      key: "delete",
-    },
-    {
-      label: "Editar",
-      key: "edit",
-    },
-  ]);
+  const locations = ref<BodyTable[]>([]);
+
+  const fetchLocations = async () => {
+    try {
+      const response = await $fetch<BodyTable[]>("locations", {
+        baseURL: "http://localhost:3307",
+      });
+      locations.value = response;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  fetchLocations();
 </script>
 <template>
-  <div class="location">
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-      <div
-        class="flex-column flex flex-wrap items-center justify-between space-y-4 bg-white pb-4 dark:bg-gray-900 md:flex-row md:space-y-0"
-      >
-        <label for="table-search" class="sr-only">Search</label>
-        <Table
-          :head="head"
-          model="locations"
-          :content="locations"
-          :isEditable="true"
-          :add="true"
-          :remove="true"
-        ></Table>
-      </div>
-    </div>
-    <slot />
+  <div class="location h-full">
+    <Table
+      model="locations"
+      title="Locales"
+      :head="head"
+      :content="locations"
+      :isEditable="true"
+      :add="true"
+      :remove="true"
+    ></Table>
   </div>
 </template>
 <style scoped>

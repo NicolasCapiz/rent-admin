@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { ref } from "vue";
   import { useAuth } from "../composables/useAuth";
-  import { useNuxtApp } from "#app"; // Importar useNuxtApp para acceder a $notyf
+  import { useNuxtApp, navigateTo } from "#app"; // Importar useNuxtApp para acceder a $notyf
 
   const email = ref("");
   const password = ref("");

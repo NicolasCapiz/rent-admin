@@ -1,11 +1,12 @@
 <template>
   <header class="sticky top-0 z-20 border-b bg-background/80 backdrop-blur">
-    <!-- Container of flex -->
     <div class="container flex h-16 items-center justify-between">
       <!-- Logo and page title -->
       <div class="flex items-center gap-3">
+        <!-- Botón para abrir el menú lateral (sidebar) en pantallas móviles -->
         <button
-          @click="isOpen = true"
+          v-if="!isLoginPage"
+          @click="toggleSidebar"
           aria-label="Open menu"
           class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border bg-background lg:hidden"
         >
@@ -22,9 +23,9 @@
         <NuxtLink class="text-xl font-bold" to="/">Analytics</NuxtLink>
       </div>
 
-      <!-- Right side of header -->
       <div class="flex items-center gap-5">
         <button
+          v-if="!isLoginPage"
           @click="toggleTheme"
           class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border bg-background"
         >
@@ -32,7 +33,7 @@
         </button>
 
         <!-- Profile Dropdown menu -->
-        <HMenu as="div" class="relative">
+        <HMenu v-if="!isLoginPage" as="div" class="relative">
           <HMenuButton
             class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border bg-background"
           >
@@ -70,18 +71,29 @@
         </HMenu>
       </div>
     </div>
-    <!-- Mobile menu -->
-    <MobileMenu v-model="isOpen" />
   </header>
 </template>
 
 <script setup lang="ts">
+  import { useState } from "#app";
+  import { useRoute } from "vue-router";
+
+  const route = useRoute();
+  const isLoginPage = route.path === "/login" || route.path === "/register";
+
+  // Estado global del sidebar para manejarlo en móvil
+  const isOpen = useState("isSidebarOpen", () => false);
+
+  const toggleSidebar = () => {
+    isOpen.value = !isOpen.value;
+  };
+
+  // Manejo de tema
   const mode = useColorMode();
   const toggleTheme = () => {
     mode.value = mode.value === "dark" ? "light" : "dark";
   };
 
-  // Items that will be displayed in menu
   const profileMenuOptions = [
     { title: "Profile" },
     { title: "Billing" },
@@ -91,7 +103,4 @@
     { divider: true },
     { title: "Logout" },
   ];
-
-  // Used to open/close menu
-  const isOpen = ref(false);
 </script>
