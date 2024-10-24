@@ -52,7 +52,7 @@
 </script>
 
 <template>
-  <div class="renter h-full">
+  <div class="renter w-full">
     <Table
       model="payments"
       title="Pagos"

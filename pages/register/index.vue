@@ -7,31 +7,40 @@
     layout: false,
     middleware: "auth",
   });
-
+  const name = ref("");
   const email = ref("");
   const password = ref("");
+  const passwordConfirm = ref("");
+  const captchaChecked = ref(false);
   const showPassword = ref(false);
+  const showPasswordConfirm = ref(false);
 
-  // Usar el composable `useAuth`
-  const { login, error } = useAuth();
+  const { register, error } = useAuth();
   const router = useRouter();
 
-  // Función para cambiar la visibilidad de la contraseña
   const togglePasswordVisibility = () => {
     showPassword.value = !showPassword.value;
   };
 
-  // Llamar a la función login cuando se envía el formulario
-  const handleLogin = async () => {
+  const togglePasswordConfirmVisibility = () => {
+    showPasswordConfirm.value = !showPasswordConfirm.value;
+  };
+
+  const handleRegister = async () => {
     const { $notyf } = useNuxtApp();
-    await login(email.value, password.value);
-    console.log("aca entre?");
+
+    if (password.value !== passwordConfirm.value) {
+      $notyf.error("Las contraseñas no coinciden.");
+      return;
+    }
+
+    await register(email.value, password.value, name.value);
 
     if (error.value) {
-      $notyf.error("Error al iniciar sesión. Por favor, verifica tus credenciales.");
+      $notyf.error("Error al registrarse. Por favor, verifica los datos.");
     } else {
-      $notyf.success("Inicio de sesión exitoso. ¡Bienvenido de nuevo!");
-      router.push("/renter"); // Redirigir al home
+      $notyf.success("Registro exitoso. ¡Bienvenido!");
+      router.push("/home");
     }
   };
 </script>
@@ -44,18 +53,30 @@
     >
       <img
         src="../../assets/images/person-working-3d.png"
-        alt="Login Illustration"
+        alt="Register Illustration"
         class="max-w-xs"
       />
     </div>
 
-    <!-- Right Side (Login Form) -->
+    <!-- Right Side (Register Form) -->
     <div class="flex w-full flex-col items-center justify-center bg-white p-8 lg:w-1/2">
-      <h1 class="mb-4 text-2xl font-bold text-purple-700">Hello! Good Morning</h1>
-      <h2 class="mb-6 text-xl font-semibold">Login your account</h2>
+      <h1 class="mb-4 text-2xl font-bold text-purple-700">Create an Account</h1>
+      <h2 class="mb-6 text-xl font-semibold">Sign up</h2>
 
-      <form @submit.prevent="handleLogin" class="w-full max-w-sm">
-        <!-- Username -->
+      <form @submit.prevent="handleRegister" class="w-full max-w-sm">
+        <!-- Name -->
+        <div class="mb-4">
+          <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+          <input
+            v-model="name"
+            id="name"
+            type="text"
+            required
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          />
+        </div>
+
+        <!-- Email -->
         <div class="mb-4">
           <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
           <input
@@ -91,9 +112,30 @@
           </div>
         </div>
 
-        <!-- Forgot Password & Login Button -->
-        <div class="mb-6 flex items-center justify-between">
-          <a href="#" class="text-sm text-indigo-600 hover:underline">Forgot password?</a>
+        <!-- Confirm Password -->
+        <div class="mb-4">
+          <label for="passwordConfirm" class="block text-sm font-medium text-gray-700"
+            >Confirm Password</label
+          >
+          <div class="relative">
+            <input
+              v-model="passwordConfirm"
+              :type="showPasswordConfirm ? 'text' : 'password'"
+              id="passwordConfirm"
+              required
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            />
+            <button
+              type="button"
+              @click="togglePasswordConfirmVisibility"
+              class="absolute inset-y-0 right-0 flex items-center px-2"
+            >
+              <Icon
+                :name="showPasswordConfirm ? 'heroicons:eye-off' : 'heroicons:eye'"
+                class="h-5 w-5 text-gray-400"
+              />
+            </button>
+          </div>
         </div>
 
         <!-- Submit Button -->
@@ -101,13 +143,13 @@
           type="submit"
           class="w-full rounded-md bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-2 text-white shadow-lg hover:bg-indigo-600"
         >
-          Login
+          Sign Up
         </button>
 
-        <!-- Create Account Link -->
+        <!-- Already have an account -->
         <p class="mt-4 text-center text-sm">
-          Don't have an account?
-          <NuxtLink to="/register" class="text-indigo-600 hover:underline">Create Account</NuxtLink>
+          Already have an account?
+          <NuxtLink to="/login" class="text-indigo-600 hover:underline">Login</NuxtLink>
         </p>
       </form>
     </div>

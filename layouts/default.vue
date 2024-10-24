@@ -1,8 +1,6 @@
-<script setup lang="ts">
- 
-</script>
+<script setup lang="ts"></script>
 <template>
-  <div>
+  <div class="h-full w-full">
     <!-- <StatusCard /> -->
     <!-- <NewCustomers /> -->
     <!-- <SalesChart /> -->

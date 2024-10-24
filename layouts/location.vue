@@ -42,7 +42,7 @@
   fetchLocations();
 </script>
 <template>
-  <div class="location h-full">
+  <div class="location w-full">
     <Table
       model="locations"
       title="Locales"

@@ -1,7 +1,13 @@
 <script setup lang="ts">
   definePageMeta({
     layout: "default",
+    // layout: false,
+    middleware: "auth",
   });
 </script>
 
-<template></template>
+<template>
+  <div class="w-full">
+    <!-- Contenido de tu página va aquí -->
+  </div>
+</template>

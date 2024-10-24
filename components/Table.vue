@@ -44,6 +44,7 @@
       originalContent.value = JSON.parse(JSON.stringify(props.content)); // Guardar el estado original
     } catch (error) {
       console.error("Error al obtener datos:", error);
+      $notyf.error("Error al obtener los datos.");
     } finally {
       isLoading.value = false;
     }
@@ -77,10 +78,11 @@
     let updateRows = props.content.filter((row) => row.isEdited || row.isNew || row.isDeleted);
     updateRows = updateRows.map((row) => {
       const { selected, ...cleanedRow } = row;
-      return cleanedRow; // Retornar el objeto row sin el campo 'selected'
+      return cleanedRow;
     });
 
     try {
+      // Realizamos la solicitud PUT
       const response: any = await $fetch(props.model, {
         method: "PUT",
         headers: {
@@ -90,28 +92,55 @@
         body: updateRows,
       });
 
+      // Procesamos la respuesta exitosa
       if (response.status === "success") {
         isEdit.value = false;
         showChanges.value = false;
-        await fetchData(); // Recargar los datos desde el servidor
+        await fetchData();
         props.content.forEach((row) => {
           row.isEdited = false;
           row.isNew = false;
           row.isDeleted = false;
         });
         $notyf.success(`Las modificaciones en ${props.title} se han guardado con éxito.`);
+      } else if (response.status === "error" && Array.isArray(response.errors)) {
+        // Mostrar errores de validación
+        response.errors.forEach((err: any) => {
+          const errorMessage = `Error en ${err.field}: ${err.constraints}`;
+          $notyf.error(errorMessage);
+        });
       } else {
-        $notyf.error("Error al actualizar filas");
+        $notyf.error(response.message || "Error al actualizar filas");
       }
-    } catch (error) {
-      console.error("Error de red:", error);
+    } catch (error: any) {
+      // Verificamos si el error tiene una respuesta de red
+      console.log("error", error);
+      if (error?.data?.status === "error") {
+        const responseData = error.data;
+        if (Array.isArray(responseData.errors)) {
+          // Mostrar errores de validación
+          responseData.errors.forEach((err: any) => {
+            const errorMessage = `Error en ${err.field}: ${err.constraints}`;
+            $notyf.error(errorMessage);
+          });
+        } else {
+          $notyf.error(responseData.message || "Error de validación en los datos enviados.");
+        }
+      } else if (error.response && error.response.status === 400) {
+        // Si hay un error 400 y no tiene estructura de error de validación
+        $notyf.error("Error de validación. Verifica los datos enviados.");
+      } else {
+        // Cualquier otro error de red
+        console.error("Error de red:", error);
+        $notyf.error("Error de conexión con el servidor.");
+      }
     }
   };
 
   onMounted(async () => {
     await fetchData();
     for (const column of props.head) {
-      if (column.isSelect && column.model) await select.fetchOptions(column.model, isLoading);
+      if (column.isSelect && column.model) await select.fetchOptions(column.model, isLoading.value);
     }
   });
 

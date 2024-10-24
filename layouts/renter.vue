@@ -7,7 +7,7 @@
   // Definimos el encabezado de la tabla
   const head = ref<HeadTable[]>([
     { title: "Nombre", key: "firstName" },
-    { title: "Direccion", key: "email" },
+    { title: "Dirección", key: "email" },
   ]);
 
   // Estado para almacenar los datos de los inquilinos
@@ -30,7 +30,7 @@
 </script>
 
 <template>
-  <div class="renter h-full">
+  <div class="renter-container flex w-full max-w-6xl flex-col items-center justify-center">
     <Table
       model="users/renters"
       title="Inquilinos"
@@ -39,22 +39,17 @@
       :isEditable="true"
       :add="true"
       :remove="true"
-    ></Table>
+      class="w-full"
+    />
   </div>
 </template>
+
 <style scoped>
-  .property {
-    border: 1px solid #b9e39e;
-    padding: 1rem;
-    position: relative;
-    background-color: #b8e39e87;
-  }
-  .property::before {
-    content: "layouts/property.vue";
-    position: absolute;
-    top: 2px;
-    left: 5px;
-    color: #68b538;
-    font-family: monospace;
+  .renter-container {
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+    border-radius: var(--radius);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid hsl(var(--border));
   }
 </style>
