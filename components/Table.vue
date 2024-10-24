@@ -30,6 +30,27 @@
   const select = useSelect();
   const originalContent = ref<BodyTable[]>([]);
 
+  // Variables para búsqueda y ordenamiento
+  const searchQuery = ref("");
+  const sortKey = ref<string | null>(null);
+  const sortOrder = ref<"asc" | "desc" | null>(null);
+
+  // Función para ordenar por columnas
+  const sortByColumn = (key: string) => {
+    if (sortKey.value === key) {
+      sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
+    } else {
+      sortKey.value = key;
+      sortOrder.value = "asc";
+    }
+    fetchData(); // Llamar a la API con el nuevo orden
+  };
+
+  // Computed para el estado del botón "Aplicar"
+  const isEditedOrNew = computed(() => {
+    return props.content.some((row) => row.isEdited || row.isNew);
+  });
+
   const fetchData = async () => {
     isLoading.value = true;
     try {
@@ -39,6 +60,11 @@
           "Content-Type": "application/json",
         },
         baseURL: "http://localhost:3307",
+        query: {
+          search: searchQuery.value,
+          sortKey: sortKey.value,
+          sortOrder: sortOrder.value,
+        },
       });
       props.content.splice(0, props.content.length, ...response);
       originalContent.value = JSON.parse(JSON.stringify(props.content)); // Guardar el estado original
@@ -166,11 +192,6 @@
     activeRow.value = null;
     isFocused.value = false;
   };
-
-  // Computed property para el estado del botón "Aplicar"
-  const isEditedOrNew = computed(() => {
-    return props.content.some((row) => row.isEdited || row.isNew);
-  });
 </script>
 
 <template>
@@ -178,6 +199,12 @@
     <div class="flex justify-between p-2">
       <h2 class="self-center">{{ title }}</h2>
       <div class="flex justify-end">
+        <input
+          v-model="searchQuery"
+          @input="fetchData"
+          placeholder="Buscar..."
+          class="m-2 rounded border bg-muted px-4 py-2 text-white"
+        />
         <button
           class="m-2 rounded bg-primary px-4 py-2 text-white"
           v-if="!showChanges && isEditable"
@@ -224,16 +251,25 @@
                 <tr>
                   <th scope="col" class="p-4"></th>
                   <th
-                    v-for="(row, index) in head"
+                    v-for="(col, index) in head"
                     :key="index"
                     scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground"
+                    class="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-white"
+                    @click="sortByColumn(col.key)"
                   >
-                    <span v-if="!row.option">{{ row.title }}</span>
+                    {{ col.title }}
+                    <span v-if="sortKey === col.key">
+                      {{ sortOrder === "asc" ? "▲" : "▼" }}
+                    </span>
                   </th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-border bg-background dark:bg-background">
+                <tr v-if="content.length === 0" class="text-center">
+                  <td colspan="100%" class="py-4">
+                    <i class="fas fa-search"></i> No se encontraron resultados.
+                  </td>
+                </tr>
                 <tr
                   v-for="(row, rowIndex) in content"
                   :key="rowIndex"
@@ -326,5 +362,10 @@
     appearance: none;
     background: transparent;
     border: none;
+  }
+
+  input[type="text"].border {
+    background-color: #374151; /* Cambia el color de fondo del input al mismo que el de las columnas */
+    color: white; /* Cambia el color del texto a blanco */
   }
 </style>
