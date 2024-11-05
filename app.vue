@@ -46,18 +46,18 @@
       :class="{
         'p-5': !valuePathNeutral,
       }"
-      class="flex-1 lg:grid lg:grid-cols-12 lg:gap-5"
+      class="flex-1 p-4 lg:grid lg:grid-cols-12 lg:gap-5"
     >
       <!-- Mostrar el Sidebar solo si el usuario está autenticado y no está en /home -->
       <Sidebar
         v-if="shouldShowHeaderAndSidebar"
-        class="sticky top-[65px] h-[calc(100vh-105px)] bg-card lg:col-span-3"
+        class="sticky top-[65px] h-[calc(100vh-105px)] bg-card lg:col-span-2 xl:col-span-2"
       />
 
       <!-- Main Section -->
       <main
         :class="{
-          'h-[calc(100vh-105px)] lg:col-span-9': shouldShowHeaderAndSidebar,
+          'h-[calc(100vh-105px)] lg:col-span-10': shouldShowHeaderAndSidebar,
           'h-100 lg:col-span-12': !shouldShowHeaderAndSidebar,
           'top-[65px] h-[calc(100vh-105px)]': true,
         }"

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-  import { computed, ref, onMounted, watch } from "vue";
+  import { computed, ref, onMounted, watch, nextTick } from "vue";
   import type { HeadTable } from "../types/headTable";
   import type { BodyTable } from "../types/bodyTable";
   import { useSelect } from "../composables/useSelect";
   import { useNuxtApp } from "#app";
+  import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 
   const { $notyf } = useNuxtApp();
 
@@ -16,58 +17,71 @@
     add?: boolean;
     remove?: boolean;
   }>();
-
+  const token = localStorage.getItem("token");
   const setEdited = (row: BodyTable) => {
     row.isEdited = true;
   };
 
-  // Variables para controlar los estados
   const isLoading = ref(false);
   const showChanges = ref(false);
   const isEdit = ref(false);
-  const activeRow = ref<number | null>(null); // Para rastrear la fila activa
-  const isFocused = ref(false); // Para rastrear si un campo está enfocado
+  const activeRow = ref<number | null>(null);
+  const isFocused = ref(false);
   const select = useSelect();
   const originalContent = ref<BodyTable[]>([]);
+  const tableBody = ref(null);
 
-  // Variables para búsqueda y ordenamiento
   const searchQuery = ref("");
   const sortKey = ref<string | null>(null);
   const sortOrder = ref<"asc" | "desc" | null>(null);
 
-  // Función para ordenar por columnas
+  const isLargeScreen = ref(window.innerWidth >= 768);
+
+  // Monitorear cambios de tamaño de pantalla
+  window.addEventListener("resize", () => {
+    isLargeScreen.value = window.innerWidth >= 768;
+  });
+
   const sortByColumn = (key: string) => {
     if (sortKey.value === key) {
-      sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
+      if (sortOrder.value === "asc") {
+        sortOrder.value = "desc";
+      } else if (sortOrder.value === "desc") {
+        sortKey.value = null;
+        sortOrder.value = null;
+      } else {
+        sortOrder.value = "asc";
+      }
     } else {
       sortKey.value = key;
       sortOrder.value = "asc";
     }
-    fetchData(); // Llamar a la API con el nuevo orden
+    fetchData();
   };
 
-  // Computed para el estado del botón "Aplicar"
   const isEditedOrNew = computed(() => {
     return props.content.some((row) => row.isEdited || row.isNew);
   });
 
   const fetchData = async () => {
     isLoading.value = true;
+    const query: Record<string, string | undefined> = {};
+    if (searchQuery.value) query.search = searchQuery.value;
+    if (sortKey.value) query.sortKey = sortKey.value;
+    if (sortOrder.value) query.sortOrder = sortOrder.value;
+
     try {
       const response: any = await $fetch(props.model, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         baseURL: "http://localhost:3307",
-        query: {
-          search: searchQuery.value,
-          sortKey: sortKey.value,
-          sortOrder: sortOrder.value,
-        },
+        query,
       });
       props.content.splice(0, props.content.length, ...response);
-      originalContent.value = JSON.parse(JSON.stringify(props.content)); // Guardar el estado original
+      originalContent.value = JSON.parse(JSON.stringify(props.content));
     } catch (error) {
       console.error("Error al obtener datos:", error);
       $notyf.error("Error al obtener los datos.");
@@ -79,25 +93,32 @@
   const startEdit = () => {
     isEdit.value = true;
     showChanges.value = true;
-    originalContent.value = JSON.parse(JSON.stringify(props.content)); // Guardar el estado original
+    originalContent.value = JSON.parse(JSON.stringify(props.content));
   };
 
   const cancel = () => {
-    // Restaurar el estado original
     props.content.splice(0, props.content.length, ...originalContent.value);
     showChanges.value = false;
     isEdit.value = false;
   };
 
   const addRow = () => {
-    const newRow = {
-      isNew: true,
-    } as BodyTable;
-    props.content.unshift(newRow); // Cambiado a unshift para agregar al principio
+    const newRow = { isNew: true } as BodyTable;
+    props.content.unshift(newRow);
+    nextTick(() => {
+      if (tableBody.value) {
+        tableBody.value.scrollTop = 0;
+      }
+    });
   };
 
   const toggleDelete = (row: BodyTable) => {
-    row.isDeleted = !row.isDeleted;
+    if (row.isNew) {
+      const index = props.content.indexOf(row);
+      if (index !== -1) props.content.splice(index, 1);
+    } else {
+      row.isDeleted = !row.isDeleted;
+    }
   };
 
   const apply = async () => {
@@ -108,17 +129,16 @@
     });
 
     try {
-      // Realizamos la solicitud PUT
       const response: any = await $fetch(props.model, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         baseURL: "http://localhost:3307",
         body: updateRows,
       });
 
-      // Procesamos la respuesta exitosa
       if (response.status === "success") {
         isEdit.value = false;
         showChanges.value = false;
@@ -129,48 +149,23 @@
           row.isDeleted = false;
         });
         $notyf.success(`Las modificaciones en ${props.title} se han guardado con éxito.`);
-      } else if (response.status === "error" && Array.isArray(response.errors)) {
-        // Mostrar errores de validación
-        response.errors.forEach((err: any) => {
-          const errorMessage = `Error en ${err.field}: ${err.constraints}`;
-          $notyf.error(errorMessage);
-        });
       } else {
         $notyf.error(response.message || "Error al actualizar filas");
       }
-    } catch (error: any) {
-      // Verificamos si el error tiene una respuesta de red
-      console.log("error", error);
-      if (error?.data?.status === "error") {
-        const responseData = error.data;
-        if (Array.isArray(responseData.errors)) {
-          // Mostrar errores de validación
-          responseData.errors.forEach((err: any) => {
-            const errorMessage = `Error en ${err.field}: ${err.constraints}`;
-            $notyf.error(errorMessage);
-          });
-        } else {
-          $notyf.error(responseData.message || "Error de validación en los datos enviados.");
-        }
-      } else if (error.response && error.response.status === 400) {
-        // Si hay un error 400 y no tiene estructura de error de validación
-        $notyf.error("Error de validación. Verifica los datos enviados.");
-      } else {
-        // Cualquier otro error de red
-        console.error("Error de red:", error);
-        $notyf.error("Error de conexión con el servidor.");
-      }
+    } catch (error) {
+      console.error("Error de red:", error);
+      $notyf.error("Error de conexión con el servidor.");
     }
   };
 
   onMounted(async () => {
     await fetchData();
     for (const column of props.head) {
-      if (column.isSelect && column.model) await select.fetchOptions(column.model, isLoading.value);
+      if (column.isSelect && column.model)
+        await select.fetchOptions(column.model, isLoading.value, token);
     }
   });
 
-  // Asegúrate de que cada fila tenga una propiedad "isDeleted", "isEdited" e "isNew"
   watch(
     () => props.content,
     (newContent) => {
@@ -182,7 +177,6 @@
     { deep: true }
   );
 
-  // Funciones para manejar la fila activa
   const setActiveRow = (rowIndex: number) => {
     activeRow.value = rowIndex;
     isFocused.value = true;
@@ -193,78 +187,102 @@
     isFocused.value = false;
   };
 </script>
-
 <template>
   <div class="flex h-full w-full flex-col">
-    <div class="flex justify-between p-2">
-      <h2 class="self-center">{{ title }}</h2>
-      <div class="flex justify-end">
-        <input
-          v-model="searchQuery"
-          @input="fetchData"
-          placeholder="Buscar..."
-          class="m-2 rounded border bg-muted px-4 py-2 text-white"
-        />
+    <!-- Contenedor adaptable para Título, Editar y Buscar -->
+    <div class="flex flex-col gap-2 pb-2 lg:flex-row lg:items-center lg:justify-between">
+      <!-- Fila con Título y Editar (solo en pantallas pequeñas y no en modo edición) -->
+      <div v-if="!showChanges || isLargeScreen" class="flex w-full items-center justify-between">
+        <h2 class="text-lg font-semibold">{{ title }}</h2>
         <button
-          class="m-2 rounded bg-primary px-4 py-2 text-white"
           v-if="!showChanges && isEditable"
           @click="startEdit"
+          class="ml-2 rounded bg-primary px-4 py-2 text-white"
         >
           Editar
         </button>
+      </div>
+
+      <!-- Botones en móvil: +, Aplicar, Cancelar (aparecen solo en modo edición en pantallas pequeñas) -->
+      <div v-if="showChanges" class="flex w-full justify-between space-x-2">
         <button
-          class="m-2 rounded bg-green-500 px-4 py-2 text-white shadow-md hover:bg-green-700"
-          v-if="showChanges && add"
           @click="addRow"
+          class="w-1/3 rounded bg-green-500 px-4 py-2 text-white hover:bg-green-700"
         >
           +
         </button>
         <button
+          @click="apply"
           :class="[
-            'm-2 rounded px-4 py-2 shadow-md',
+            'w-1/3 rounded px-4 py-2',
             isEditedOrNew
               ? 'bg-green-500 text-white hover:bg-green-700'
               : 'cursor-not-allowed bg-gray-500 text-white',
           ]"
           :disabled="!isEditedOrNew"
-          v-if="showChanges"
-          @click="apply"
         >
           Aplicar
         </button>
         <button
-          class="m-2 rounded bg-red-500 px-4 py-2 text-white shadow-md hover:bg-red-700"
-          v-if="showChanges"
           @click="cancel"
+          class="w-1/3 rounded bg-red-500 px-4 py-2 text-white hover:bg-red-700"
         >
           Cancelar
         </button>
       </div>
+
+      <!-- Campo Buscar (ocupa todo el ancho en pantallas pequeñas) -->
+      <div :class="{ 'w-full': !isLargeScreen }" class="flex lg:w-auto">
+        <input
+          v-model="searchQuery"
+          @input="fetchData"
+          placeholder="Buscar..."
+          class="search-input flex-grow rounded border bg-muted px-4 py-2 text-white"
+        />
+      </div>
     </div>
 
-    <div class="custom-scrollbar relative flex-1 overflow-x-auto">
+    <!-- Contenedor de la tabla con desplazamiento horizontal en móviles -->
+    <div
+      class="table-container custom-scrollbar relative mx-auto h-full w-full overflow-x-auto lg:overflow-hidden"
+    >
       <div class="inline-block h-full min-w-full align-middle">
         <div class="flex h-full flex-col border border-border shadow sm:rounded-lg">
-          <div class="overflow-hidden">
-            <table class="min-w-full divide-y divide-border">
-              <thead class="bg-muted dark:bg-muted">
-                <tr>
-                  <th scope="col" class="p-4"></th>
-                  <th
-                    v-for="(col, index) in head"
-                    :key="index"
-                    scope="col"
-                    class="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-white"
-                    @click="sortByColumn(col.key)"
-                  >
+          <table class="min-w-full divide-y divide-border">
+            <thead class="bg-muted dark:bg-muted">
+              <tr>
+                <th scope="col" class="w-20 p-4"></th>
+                <th
+                  v-for="(col, index) in head"
+                  :key="index"
+                  scope="col"
+                  class="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-white"
+                  @click="sortByColumn(col.key)"
+                  :style="{ width: `${col.width || '150px'}` }"
+                >
+                  <div class="flex items-center">
                     {{ col.title }}
-                    <span v-if="sortKey === col.key">
-                      {{ sortOrder === "asc" ? "▲" : "▼" }}
+                    <span
+                      class="arrow"
+                      :class="{ active: sortKey === col.key && sortOrder === 'asc' }"
+                    >
+                      ▲
                     </span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-border bg-background dark:bg-background">
+                    <span
+                      class="arrow"
+                      :class="{ active: sortKey === col.key && sortOrder === 'desc' }"
+                    >
+                      ▼
+                    </span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+          </table>
+
+          <div ref="tableBody" class="h-[calc(100vh-220px)] overflow-y-auto">
+            <table class="min-w-full divide-y divide-border">
+              <tbody class="bg-background dark:bg-background">
                 <tr v-if="content.length === 0" class="text-center">
                   <td colspan="100%" class="py-4">
                     <i class="fas fa-search"></i> No se encontraron resultados.
@@ -294,25 +312,31 @@
                     </div>
                   </td>
                   <td v-for="(value, colIndex) in head" :key="colIndex" class="px-6 py-4">
-                    <select
-                      v-if="!value.option && value.isSelect"
-                      v-model="row[value.key]"
-                      :disabled="!isEdit"
-                      @focus="setActiveRow(rowIndex)"
-                      @blur="clearActiveRow"
-                      @change="setEdited(row)"
-                      class="border-none bg-transparent focus:outline-none focus:ring-0"
-                    >
-                      <option v-if="isLoading" disabled value="">Cargando...</option>
-                      <option
-                        else
-                        v-for="option of select.options[value.model]"
-                        :key="option.id"
-                        :value="option.id"
+                    <Listbox v-if="!value.option && value.isSelect" v-model="row[value.key]">
+                      <ListboxButton
+                        class="w-full max-w-[200px] rounded border bg-background p-2 text-foreground"
+                        :disabled="!isEdit"
                       >
-                        {{ option[value.selectKey] }}
-                      </option>
-                    </select>
+                        {{
+                          select.options[value.model]?.find(
+                            (option) => option.id === row[value.key]
+                          )?.[value.selectKey] || "Selecciona una opción"
+                        }}
+                      </ListboxButton>
+                      <ListboxOptions
+                        class="absolute z-50 mt-1 max-h-60 w-[200px] overflow-auto rounded border border-border bg-background shadow-lg"
+                      >
+                        <ListboxOption
+                          v-for="option in select.options[value.model]"
+                          :key="option.id"
+                          :value="option.id"
+                          class="cursor-pointer p-2 hover:bg-blue-500 hover:text-white"
+                        >
+                          {{ option[value.selectKey] }}
+                        </ListboxOption>
+                      </ListboxOptions>
+                    </Listbox>
+
                     <input
                       :type="value.type || 'text'"
                       v-if="!value.option && !value.isSelect"
@@ -335,37 +359,42 @@
 </template>
 
 <style scoped>
-  /* Estilo personalizado para el scroll */
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .arrow {
+    border: 1px solid var(--text-color);
+    margin-left: 4px;
+    width: 12px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .arrow.active {
+    color: rgba(255, 255, 255, 1);
+  }
+
   .custom-scrollbar::-webkit-scrollbar {
     width: 8px;
-    height: 8px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
+    background: var(--background);
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 4px;
-    border: 2px solid transparent;
-    background-clip: content-box;
+    background-color: var(--muted);
+    border-radius: 10px;
   }
 
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 255, 255, 0.5);
+  .search-input {
+    width: 100%;
   }
 
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    appearance: none;
-    background: transparent;
-    border: none;
-  }
-
-  input[type="text"].border {
-    background-color: #374151; /* Cambia el color de fondo del input al mismo que el de las columnas */
-    color: white; /* Cambia el color del texto a blanco */
+  @media (min-width: 768px) {
+    .search-input {
+      width: auto;
+    }
   }
 </style>

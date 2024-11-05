@@ -19,7 +19,7 @@
     },
     {
       title: "Inquilino",
-      key: "managerId",
+      key: "renterId",
       model: "users",
       isSelect: true,
       selectKey: "firstName",
@@ -28,10 +28,14 @@
 
   const locations = ref<BodyTable[]>([]);
 
+  const token = localStorage.getItem("token");
   const fetchLocations = async () => {
     try {
       const response = await $fetch<BodyTable[]>("locations", {
         baseURL: "http://localhost:3307",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       locations.value = response;
     } catch (error) {
@@ -42,7 +46,7 @@
   fetchLocations();
 </script>
 <template>
-  <div class="location w-full">
+  <div class="location h-full w-full">
     <Table
       model="locations"
       title="Locales"

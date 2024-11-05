@@ -9,6 +9,7 @@ interface State {
 }
 
 import { defineStore } from "pinia";
+const baseURL = "http://localhost:3307";
 
 export const useSelect = defineStore("select", {
   state: (): State => ({
@@ -17,8 +18,15 @@ export const useSelect = defineStore("select", {
   }),
 
   actions: {
-    async fetchOptions(model: string, isLoading: boolean) {
-      const res = await fetch(`http://localhost:3307/${model}`);
+    async fetchOptions(model: string, isLoading: boolean, token: string) {
+      const res: any = await fetch(`${baseURL}/${model}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       const data = await res.json();
 
       this.options[model] = data;

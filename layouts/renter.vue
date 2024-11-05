@@ -13,11 +13,13 @@
   // Estado para almacenar los datos de los inquilinos
   const renters = ref<BodyTable[]>([]);
 
+  const token = localStorage.getItem("token");
   // Función para obtener los datos de los inquilinos
   const fetchRenters = async () => {
     try {
       const response = await $fetch<BodyTable[]>("users/renters", {
         baseURL: "http://localhost:3307",
+        headers: { Authorization: `Bearer ${token}` },
       });
       renters.value = response;
     } catch (error) {
@@ -30,7 +32,7 @@
 </script>
 
 <template>
-  <div class="renter-container flex w-full max-w-6xl flex-col items-center justify-center">
+  <div class="renter-container flex h-full w-full flex-col items-center justify-center">
     <Table
       model="users/renters"
       title="Inquilinos"
