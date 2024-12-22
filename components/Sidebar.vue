@@ -54,6 +54,11 @@
       icons: "heroicons:currency-dollar",
       link: "/payment",
     },
+    {
+      title: "Aumentos",
+      icons: "heroicons:adjustments-horizontal",
+      link: "/adjustment",
+    },
   ]);
 
   const bottomMenu = ref<Sidebar[]>([

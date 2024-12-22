@@ -35,11 +35,13 @@
   // Estado para almacenar los datos de los inquilinos
   const payments = ref<BodyTable[]>([]);
 
+  const token = localStorage.getItem("token");
   // Función para obtener los datos de los inquilinos
   const fetchPayments = async () => {
     try {
       const response = await $fetch<BodyTable[]>("payments", {
         baseURL: "http://localhost:3307",
+        headers: { Authorization: `Bearer ${token}` },
       });
       payments.value = response;
     } catch (error) {

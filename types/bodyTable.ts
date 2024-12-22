@@ -5,7 +5,7 @@ export type BodyTable = {
   address?: string;
   manager?: object;
   renter?: object;
-
+  date?: string;
   showDelete?: boolean;
   modified?: boolean;
   isEdit?: boolean;

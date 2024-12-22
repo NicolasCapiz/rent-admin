@@ -37,7 +37,6 @@
 
   const isLargeScreen = ref(window.innerWidth >= 768);
 
-  // Monitorear cambios de tamaño de pantalla
   window.addEventListener("resize", () => {
     isLargeScreen.value = window.innerWidth >= 768;
   });
@@ -118,6 +117,7 @@
       if (index !== -1) props.content.splice(index, 1);
     } else {
       row.isDeleted = !row.isDeleted;
+      row.isEdited = true;
     }
   };
 
@@ -125,6 +125,9 @@
     let updateRows = props.content.filter((row) => row.isEdited || row.isNew || row.isDeleted);
     updateRows = updateRows.map((row) => {
       const { selected, ...cleanedRow } = row;
+      if (cleanedRow.date) {
+      cleanedRow.date = convertDateToISOWithCurrentTime(cleanedRow.date); // Combina fecha con hora actual
+      }
       return cleanedRow;
     });
 
@@ -177,6 +180,16 @@
     { deep: true }
   );
 
+  function convertDateToISOWithCurrentTime(date: string): string {
+  const now = new Date();
+  const [year, month, day] = date.split("-").map(Number);
+
+  const combinedDate = new Date(
+    Date.UTC(year, month - 1, day, now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds())
+  );
+
+  return combinedDate.toISOString();
+}
   const setActiveRow = (rowIndex: number) => {
     activeRow.value = rowIndex;
     isFocused.value = true;
@@ -186,12 +199,31 @@
     activeRow.value = null;
     isFocused.value = false;
   };
+
+  const markAsEdited = (row: BodyTable) => {
+    row.isEdited = true;
+  };
+
+  const dropdownPosition = ref("dropdown-below");
+
+  const adjustDropdownPosition = (button) => {
+    nextTick(() => {
+      const rect = button.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+
+      if (windowHeight - rect.bottom < 200 && rect.top > 200) {
+        dropdownPosition.value = "dropdown-above";
+      } else {
+        dropdownPosition.value = "dropdown-below";
+      }
+    });
+  };
 </script>
+
 <template>
   <div class="flex h-full w-full flex-col">
     <!-- Contenedor adaptable para Título, Editar y Buscar -->
     <div class="flex flex-col gap-2 pb-2 lg:flex-row lg:items-center lg:justify-between">
-      <!-- Fila con Título y Editar (solo en pantallas pequeñas y no en modo edición) -->
       <div v-if="!showChanges || isLargeScreen" class="flex w-full items-center justify-between">
         <h2 class="text-lg font-semibold">{{ title }}</h2>
         <button
@@ -203,7 +235,6 @@
         </button>
       </div>
 
-      <!-- Botones en móvil: +, Aplicar, Cancelar (aparecen solo en modo edición en pantallas pequeñas) -->
       <div v-if="showChanges" class="flex w-full justify-between space-x-2">
         <button
           @click="addRow"
@@ -231,7 +262,6 @@
         </button>
       </div>
 
-      <!-- Campo Buscar (ocupa todo el ancho en pantallas pequeñas) -->
       <div :class="{ 'w-full': !isLargeScreen }" class="flex lg:w-auto">
         <input
           v-model="searchQuery"
@@ -242,118 +272,123 @@
       </div>
     </div>
 
-    <!-- Contenedor de la tabla con desplazamiento horizontal en móviles -->
+    <!-- Tabla con encabezado fijo y desplazamiento en el cuerpo -->
     <div
-      class="table-container custom-scrollbar relative mx-auto h-full w-full overflow-x-auto lg:overflow-hidden"
+      class="table-container relative mx-auto h-full w-full overflow-x-auto lg:overflow-hidden"
     >
-      <div class="inline-block h-full min-w-full align-middle">
-        <div class="flex h-full flex-col border border-border shadow sm:rounded-lg">
-          <table class="min-w-full divide-y divide-border">
-            <thead class="bg-muted dark:bg-muted">
-              <tr>
-                <th scope="col" class="w-20 p-4"></th>
-                <th
-                  v-for="(col, index) in head"
-                  :key="index"
-                  scope="col"
-                  class="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-white"
-                  @click="sortByColumn(col.key)"
-                  :style="{ width: `${col.width || '150px'}` }"
+      <table class="h-full min-w-full table-auto divide-y divide-border border border-border">
+        <thead class="sticky top-0 z-10 bg-muted dark:bg-muted">
+          <tr>
+            <th scope="col" class="w-8 min-w-0 p-1"></th>
+            <th
+              v-for="(col, index) in head"
+              :key="index"
+              scope="col"
+              :style="{ width: `${col.width || '150px'}` }"
+              class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-white"
+              @click="sortByColumn(col.key)"
+            >
+              <div class="flex cursor-pointer items-center">
+                {{ col.title }}
+                <span class="arrow" :class="{ active: sortKey === col.key && sortOrder === 'asc' }">
+                  ▲
+                </span>
+                <span
+                  class="arrow"
+                  :class="{ active: sortKey === col.key && sortOrder === 'desc' }"
                 >
-                  <div class="flex items-center">
-                    {{ col.title }}
-                    <span
-                      class="arrow"
-                      :class="{ active: sortKey === col.key && sortOrder === 'asc' }"
-                    >
-                      ▲
-                    </span>
-                    <span
-                      class="arrow"
-                      :class="{ active: sortKey === col.key && sortOrder === 'desc' }"
-                    >
-                      ▼
-                    </span>
-                  </div>
-                </th>
-              </tr>
-            </thead>
-          </table>
+                  ▼
+                </span>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody
+  :class="{
+      'h-64 flex items-center justify-center': content.length === 0, // Solo cuando no hay datos
 
-          <div ref="tableBody" class="h-[calc(100vh-220px)] overflow-y-auto">
-            <table class="min-w-full divide-y divide-border">
-              <tbody class="bg-background dark:bg-background">
-                <tr v-if="content.length === 0" class="text-center">
-                  <td colspan="100%" class="py-4">
-                    <i class="fas fa-search"></i> No se encontraron resultados.
-                  </td>
-                </tr>
-                <tr
-                  v-for="(row, rowIndex) in content"
-                  :key="rowIndex"
-                  :class="[
-                    'hover:bg-muted dark:hover:bg-muted',
-                    {
-                      'bg-accent dark:bg-accent': isFocused && activeRow === rowIndex,
-                      'bg-red-100 bg-opacity-50 dark:bg-red-700 dark:bg-opacity-50': row.isDeleted,
-                      'bg-green-100 bg-opacity-50 dark:bg-green-700 dark:bg-opacity-50': row.isNew,
-                    },
-                  ]"
+    // 'flex items-center justify-center h-64': content.length === 0, // Centrar cuando no hay datos
+    // 'bg-background dark:bg-background': content.length > 0, // Normal cuando hay registros
+  }"
+>
+  <tr v-if="content.length === 0" class="text-center w-full">
+    <td colspan="100%" class="py-4">
+      <i class="fas fa-search"></i> No se encontraron resultados.
+    </td>
+  </tr>
+  <tr
+    v-for="(row, rowIndex) in content"
+    :key="rowIndex"
+    :class="[
+      'hover:bg-muted dark:hover:bg-muted',
+      {
+        'bg-accent dark:bg-accent': isFocused && activeRow === rowIndex,
+        'bg-red-100 bg-opacity-50 dark:bg-red-700 dark:bg-opacity-50': row.isDeleted,
+        'bg-green-100 bg-opacity-50 dark:bg-green-700 dark:bg-opacity-50': row.isNew,
+      },
+    ]"
+          >
+            <td class="w-8 p-4">
+              <div class="flex items-center">
+                <button
+                  v-if="isEdit && remove"
+                  @click="toggleDelete(row)"
+                  class="hover:bg-destructive-dark flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-white"
                 >
-                  <td class="w-8 p-4">
-                    <div class="flex items-center">
-                      <button
-                        v-if="isEdit && remove"
-                        @click="toggleDelete(row)"
-                        class="hover:bg-destructive-dark flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-white"
-                      >
-                        &minus;
-                      </button>
-                    </div>
-                  </td>
-                  <td v-for="(value, colIndex) in head" :key="colIndex" class="px-6 py-4">
-                    <Listbox v-if="!value.option && value.isSelect" v-model="row[value.key]">
-                      <ListboxButton
-                        class="w-full max-w-[200px] rounded border bg-background p-2 text-foreground"
-                        :disabled="!isEdit"
-                      >
-                        {{
-                          select.options[value.model]?.find(
-                            (option) => option.id === row[value.key]
-                          )?.[value.selectKey] || "Selecciona una opción"
-                        }}
-                      </ListboxButton>
-                      <ListboxOptions
-                        class="absolute z-50 mt-1 max-h-60 w-[200px] overflow-auto rounded border border-border bg-background shadow-lg"
-                      >
-                        <ListboxOption
-                          v-for="option in select.options[value.model]"
-                          :key="option.id"
-                          :value="option.id"
-                          class="cursor-pointer p-2 hover:bg-blue-500 hover:text-white"
-                        >
-                          {{ option[value.selectKey] }}
-                        </ListboxOption>
-                      </ListboxOptions>
-                    </Listbox>
+                  &minus;
+                </button>
+              </div>
+            </td>
+            <td v-for="(value, colIndex) in head" :key="colIndex" class="px-6 py-3">
+              <div class="relative">
+                <Listbox
+                  v-if="!value.option && value.isSelect"
+                  v-model="row[value.key]"
+                  @update:modelValue="markAsEdited(row)"
+                >
+                  <ListboxButton
+                    class="w-full max-w-[200px] rounded border bg-background p-2 text-foreground"
+                    :disabled="!isEdit"
+                    @click="adjustDropdownPosition"
+                  >
+                    {{
+                      select.options[value.model]?.find((option) => option.id === row[value.key])?.[
+                        value.selectKey
+                      ] || "Selecciona una opción"
+                    }}
+                  </ListboxButton>
+                  <ListboxOptions
+                    :class="[
+                      'absolute z-50 max-h-60 w-full overflow-auto rounded border border-border bg-background shadow-lg',
+                      dropdownPosition,
+                    ]"
+                  >
+                    <ListboxOption
+                      v-for="option in select.options[value.model]"
+                      :key="option.id"
+                      :value="option.id"
+                      class="cursor-pointer p-2 hover:bg-blue-500 hover:text-white"
+                    >
+                      {{ option[value.selectKey] }}
+                    </ListboxOption>
+                  </ListboxOptions>
+                </Listbox>
+              </div>
 
-                    <input
-                      :type="value.type || 'text'"
-                      v-if="!value.option && !value.isSelect"
-                      :disabled="!isEdit"
-                      class="border-b-2 border-gray-300 bg-transparent dark:border-gray-700"
-                      v-model="row[value.key]"
-                      @focus="setActiveRow(rowIndex)"
-                      @blur="clearActiveRow"
-                      @input="setEdited(row)"
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+              <input
+                :type="value.type || 'text'"
+                v-if="!value.option && !value.isSelect"
+                :disabled="!isEdit"
+                class="border-b-2 border-gray-300 bg-transparent dark:border-gray-700 w-100"
+                v-model="row[value.key]"
+                @focus="setActiveRow(rowIndex)"
+                @blur="clearActiveRow"
+                @input="setEdited(row)"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
@@ -375,23 +410,54 @@
     color: rgba(255, 255, 255, 1);
   }
 
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: var(--background);
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: var(--muted);
-    border-radius: 10px;
-  }
 
   .search-input {
     width: 100%;
   }
 
+  .dropdown-below {
+    top: 100%;
+    transform: translateY(0);
+  }
+
+  .dropdown-above {
+    bottom: 100%;
+    transform: translateY(-8px);
+  }
+  table {
+    width: 100%; /* Asegura que la tabla use todo el ancho del contenedor */
+    border-collapse: collapse;
+  }
+
+  /* Fijar encabezado */
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: var(--muted); /* Ajusta según tu diseño */
+  }
+
+  /* Altura fija para el cuerpo */
+  tbody {
+    display: block; /* Permitir scroll solo en el cuerpo */
+    overflow-y: auto; /* Scroll vertical para el cuerpo */
+    height: inherit;
+  }
+
+  /* Ajustar las celdas en tbody */
+  tbody tr {
+    display: table;
+    width: 100%; /* Asegurar que las filas usen todo el ancho */
+    table-layout: fixed; /* Distribuir columnas uniformemente */
+    
+  }
+
+  /* Encabezado para filas */
+  thead tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+  }
   @media (min-width: 768px) {
     .search-input {
       width: auto;
