@@ -46,12 +46,5 @@
   </div>
 </template>
 
-<style scoped>
-  .renter-container {
-    background-color: hsl(var(--card));
-    color: hsl(var(--card-foreground));
-    border-radius: var(--radius);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid hsl(var(--border));
-  }
+<style scoped> 
 </style>

@@ -4,11 +4,21 @@
 
 @layer base {
   :root {
+    
+    --period-monthly: hsl(180, 100%, 40%); /* Verde esmeralda */
+    --period-bimonthly: hsl(195, 100%, 45%); /* Azul neón */
+    --period-quarterly: hsl(220, 100%, 40%); /* Azul profundo */
+    --period-semiannual: hsl(260, 90%, 45%); /* Morado intenso */
+    --period-annual: hsl(340, 90%, 45%); /* Rojo pasión */
+    
     --background: 0 0% 100%;
     --foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
+
+    --modal: 0 0% 95%;
+    --modal-foreground: 222.2 47.4% 11.2%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 47.4% 11.2%;
@@ -20,7 +30,7 @@
     --card-foreground: 222.2 47.4% 11.2%;
 
     --primary: 210, 100%, 49%;
-    --primary-foreground: 210 40% 98%;
+    --primary-foreground: 210, 100%, 30%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -43,6 +53,9 @@
     --muted: 223 47% 11%;
     --muted-foreground: 215.4 16.3% 56.9%;
 
+    --modal: 220 15% 28%;
+    --modal-foreground: 213 31% 31%;
+    
     --accent: 216 34% 17%;
     --accent-foreground: 210 40% 98%;
 
@@ -59,7 +72,7 @@
     --primary-foreground: 222.2 47.4% 1.2%;
 
     --secondary: 222.2 47.4% 11.2%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary-foreground: 222.2 60% 41.2%;
 
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
@@ -116,4 +129,40 @@
   transform: translateY(-10px);
 }
 
+.multiselect .multiselect__tags {
+  @apply dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300
+}
 
+.multiselect__tags .multiselect__single {
+  @apply dark:bg-gray-900
+}
+
+.multiselect .multiselect__input {
+  @apply dark:bg-gray-900
+}
+
+.multiselect .multiselect__content-wrapper {
+  @apply dark:bg-gray-900 dark:text-gray-300 dark:border-gray-800
+}
+
+.dark .multiselect__option--selected {
+  background-color: hsl(var(--primary-foreground)); 
+  /* color: hsl(var(--background)); Texto oscuro */
+}
+
+.status-1 {
+  background-color: hsl(var(--success, 120 50% 40%)); /* Verde */
+  color: white;
+}
+
+/* Status Finalizado - Rojo */
+.status-2 {
+  background-color: hsl(var(--error, 0 63% 31%)); /* Rojo */
+  color: white;
+}
+
+.period-1 { background-color: var(--period-monthly); color: white; text-align: center; }
+.period-2 { background-color: var(--period-bimonthly); color: white; text-align: center; }
+.period-4 { background-color: var(--period-quarterly); color: white; text-align: center; }
+.period-8 { background-color: var(--period-semiannual); color: white; text-align: center; }
+.period-16 { background-color: var(--period-annual); color: white; text-align: center; }

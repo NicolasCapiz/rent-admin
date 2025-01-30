@@ -18,6 +18,10 @@
       key: "address",
     },
     {
+      title: "Alquiler",
+      key: "price",
+    },
+    {
       title: "Inquilino",
       key: "renterId",
       model: "users",
