@@ -10,6 +10,9 @@ export type HeadTable = {
   isConstant?: boolean;
   selectKey?: string;
   isVisible?: string;
+  isEditable?: boolean;
   keyVisible?: string;
+  customRender?: string;
   css?: boolean;
+  icon?: string;
 };

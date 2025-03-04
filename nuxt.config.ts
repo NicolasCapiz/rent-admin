@@ -1,14 +1,17 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
-
-  vue: {
-    config: {
-      devtools: true, // Esto habilita las herramientas de desarrollo de Vue
-      productionTip: false,
+  ssr: false, // Desactiva el SSR para evitar parpadeos en la carga
+  pages: true,
+  build: {
+    extractCSS: true, // Extrae el CSS en archivos en lugar de inline
+    transpile: ["@headlessui/vue"], // Transpila Headless UI si lo usas
+  },
+  runtimeConfig: {
+    public: {
+      apiBase: "http://localhost:3307/", // URL base del backend
     },
   },
-
-  css: ["@/assets/css/tailwind.css"],
+  css: ["@/assets/css/tailwind.css"], // 📌 Mantén solo aquí el CSS
 
   modules: [
     "@nuxtjs/tailwindcss",
@@ -19,20 +22,16 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
   ],
 
-  plugins: [{ src: "~/plugins/notyf.js", ssr: false }],
+  plugins: [{ src: "~/plugins/notyf.js", ssr: false }], // 📌 Elimina `tailwindcss` de plugins
+
   tailwindcss: { exposeConfig: true },
   headlessui: { prefix: "H" },
 
   app: {
     head: {
-      title: "Analytics",
+      title: "rent-management",
       link: [
         { rel: "icon", type: "image/x-icon", href: "/icon.svg" },
-        // { rel: "stylesheet", href: "https://rsms.me/inter/inter.css" },
-        { rel: "stylesheet", href: "/_nuxt/assets/css/tailwind.css" },
-        { rel: "preload", as: "style", href: "/_nuxt/assets/css/tailwind.css" },
-
-        { rel: "preconnect", href: "https://rsms.me/" },
       ],
     },
   },

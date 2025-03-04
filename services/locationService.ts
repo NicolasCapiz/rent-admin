@@ -1,10 +1,14 @@
+import { useAuth } from "../composables/useAuth";
+
 const apiBaseURL = "http://localhost:3307"; // Cambia esto según tu configuración
+
 
 export const locationService = {
   // Función para obtener todas las localidades
   async getAllLocations() {
+    const auth = useAuth();
+    const token = auth.getToken();
     try {
-      const token = localStorage.getItem("token"); // Obtener el token de localStorage
       if (!token) {
         throw new Error("Token no encontrado");
       }
@@ -26,8 +30,9 @@ export const locationService = {
 
   // Función para obtener detalles de una localidad por ID
   async getLocationById(locationId: number) {
+    const auth = useAuth();
+const token = auth.getToken();
     try {
-      const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("Token no encontrado");
       }
@@ -49,8 +54,9 @@ export const locationService = {
 
   // Función para crear una nueva localidad (opcional)
   async createLocation(data: { name: string; address: string }) {
+    const auth = useAuth();
+const token = auth.getToken();
     try {
-      const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("Token no encontrado");
       }
@@ -73,8 +79,9 @@ export const locationService = {
 
   // Función para eliminar una localidad por ID (opcional)
   async deleteLocation(locationId: number) {
+    const auth = useAuth();
+const token = auth.getToken();
     try {
-      const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("Token no encontrado");
       }

@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { useAuth } from "../composables/useAuth";
 import { ref } from "vue";
 import Table from "@/components/Table.vue";
 import type { HeadTable } from "@/types/headTable";
 import type { BodyTable } from "@/types/bodyTable";
 import CreateAdjustmentModal from "@/components/modals/CreateAdjustment.vue";
+import AffectedLocationsModal from "@/components/modals/AffectedLocations.vue"; // Componente que crearemos
 import { useNuxtApp } from "#app"; 
 import { nextTick } from "vue";
 import { computed } from "vue";
@@ -20,16 +22,34 @@ const { $notyf } = useNuxtApp(); // Servicio de notificaciones
 const selectedAdjustment = ref<BodyTable | null>(null); // Ajuste seleccionado
 const showModal = ref(false); // Controla si el modal está visible
 const adjustments = ref<BodyTable[]>([]); // Datos para la tabla
-const token = localStorage.getItem("token");
+const auth = useAuth();
+const token = auth.getToken();
+const reloadTable = ref(false); 
+const showAffectedModal = ref(false);
+const affectedLocations = ref([] as any[]);
+
 
 // Definimos las columnas de la tabla
 const head = ref<HeadTable[]>([
-  { title: "Fecha de Ejecución", key: "lastExecutedAt", type: "date" },
+  { title: "Ejecución", key: "lastExecutedAt", type: "date" },
   { title: "Monto", key: "amount", type: "number", isVisible: TYPE_ADJUSTMENT.AMOUNT, keyVisible: 'type' },
   { title: "Porcentaje", key: "amount", type: "number", isVisible: TYPE_ADJUSTMENT.PERCENTAGE, keyVisible: 'type' },
   { title: "Periodo", key: "period", isConstant: true, css: true },
   { title: "Estado", key: "status", isConstant: true, css: true },
+  {
+    title: "Locales Afectados",
+    key: "affectedLocales",
+    type: "custom",
+    // La función customRender devuelve un resumen:
+    customRender: (row: any) =>
+      row.applyToAll
+        ? "Todos los locales"
+        : (row.locations && row.locations.length > 0
+            ? `${row.locations.length} locales`
+            : "Ninguno"),
+  },
 ]);
+
 
 const isCreateAdjustmentModalOpen = ref(false);
 
@@ -42,21 +62,8 @@ const closeCreateAdjustmentModal = () => {
 };
 const createAdjustment = async () => {
   closeCreateAdjustmentModal()
-  await fetchAdjustments()
+  reloadTable.value = true;
 
-};
-
-// Función para obtener los datos de los ajustes
-const fetchAdjustments = async () => {
-  try {
-    const response = await $fetch<BodyTable[]>("priceAdjustments", {
-      baseURL: "http://localhost:3307",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    adjustments.value = response;
-  } catch (error) {
-    console.error("Error al obtener ajustes:", error);
-  }
 };
 const actions = computed(() => [
   { 
@@ -87,9 +94,8 @@ const finalizeAdjustment = async () => {
 
     // Mostrar notificación de éxito
     $notyf.success(response.message || "Ajuste finalizado correctamente");
-
-    await fetchAdjustments();
     selectedAdjustment.value = null;
+    reloadTable.value = true;
   } catch (error: any) {
     console.error("Error al finalizar ajuste:", error);
     
@@ -104,6 +110,16 @@ const handleRowSelection = async (row: BodyTable) => {
   await nextTick(); // Espera a que Vue procese el cambio
 };
 
+const openAffectedModal = (row: any) => {
+  if (row.applyToAll) {
+    // Si se aplica a todos, puedes mostrar un mensaje especial o, si lo prefieres, cargar todas las locaciones.
+    affectedLocations.value = []; // O mostrar "Todos los locales" en el modal
+  } else {
+    affectedLocations.value = row.locations || [];
+  }
+  showAffectedModal.value = true;
+};
+
 </script>
 
 <template>
@@ -114,19 +130,28 @@ const handleRowSelection = async (row: BodyTable) => {
       :head="head"
       :content="adjustments"
       :actions="actions"
+      :reload="reloadTable"
       class="w-full"
       @create-adjustment="openCreateAdjustmentModal"
       @finish-adjustment="finalizeAdjustment"
       @selected="handleRowSelection"
+      @affected-click="openAffectedModal"
     />
     <!-- Modal para Crear Ajuste -->
     <CreateAdjustmentModal
-      v-if="isCreateAdjustmentModalOpen"
+      v-show="isCreateAdjustmentModalOpen"
       @close="closeCreateAdjustmentModal"
       @create="createAdjustment"
     />
+    <!-- Modal para Mostrar Locales Afectados -->
+    <AffectedLocationsModal
+      v-if="showAffectedModal"
+      :locations="affectedLocations"
+      @close="showAffectedModal = false"
+    />
   </div>
 </template>
+
 
 <style scoped>
 .adjustments-layout-container {

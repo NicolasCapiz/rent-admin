@@ -1,13 +1,16 @@
+import { useAuth } from "../composables/useAuth";
 import { useNuxtApp } from "#app";
 
 const apiBaseURL = "http://localhost:3307"; // Cambia según tu configuración
+
+const auth = useAuth();
+const token = auth.getToken();
 
 export const adjustmentService = {
   async fetchAdjustments() {
     const { $notyf } = useNuxtApp(); // Acceso a $notyf para notificaciones
 
     try {
-      const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("Token no encontrado");
       }
@@ -31,11 +34,9 @@ export const adjustmentService = {
     const { $notyf } = useNuxtApp(); // Acceso a $notyf para notificaciones
 
     try {
-      const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("Token no encontrado");
       }
-      console.log('llegue?');
       
       const response = await $fetch(`${apiBaseURL}/priceAdjustments`, {
         method: "POST",

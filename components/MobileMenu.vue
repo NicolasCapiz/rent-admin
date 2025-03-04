@@ -20,9 +20,9 @@
         <HTransitionChild
           as="div"
           enter="duration-300 ease-out"
-          enter-from="-translate-x-full opacity-0"
+          enter-from="-translate-x-full "
           leave="duration-200 ease-in"
-          leave-to="-translate-x-full opacity-0"
+          leave-to="-translate-x-full "
         >
           <HDialogPanel class="relative h-full w-[80%] max-w-sm bg-background">
             <!-- Botón para cerrar el menú -->

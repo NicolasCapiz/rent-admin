@@ -46,7 +46,7 @@
 
     <!-- Menú móvil desplegable -->
     <transition name="slide-fade">
-      <nav v-if="isMenuOpen" class="space-y-4 bg-white px-6 py-4 text-center shadow-md lg:hidden">
+      <nav v-show="isMenuOpen" class="space-y-4 bg-white px-6 py-4 text-center shadow-md lg:hidden">
         <a
           href="#inicio"
           class="block font-semibold text-gray-700 hover:text-indigo-600"
@@ -84,11 +84,10 @@
 
 <script setup lang="ts">
   import { ref, onMounted, onUnmounted } from "vue";
-  import { useRouter } from "vue-router"; // Importar useRouter para la navegación
+  import { navigateTo } from "#app"; 
 
   const isMenuOpen = ref(false);
   const isHeaderVisible = ref(true);
-  const router = useRouter(); // Definir el router para redirecciones
   let lastScrollPosition = 0;
 
   // Función para abrir/cerrar el menú móvil
@@ -112,12 +111,12 @@
 
   // Navegación a Login
   const navigateToLogin = () => {
-    router.push("/login"); // Redirige a la ruta de login
+    navigateTo("/login"); // Redirige a la ruta de login
   };
 
   // Navegación a Registrarse
   const navigateToRegister = () => {
-    router.push("/register"); // Redirige a la ruta de registro
+    navigateTo("/register"); // Redirige a la ruta de registro
   };
 
   // Ocultar y mostrar el header en función del scroll
@@ -151,7 +150,7 @@
   }
   .slide-fade-enter-from,
   .slide-fade-leave-to {
-    opacity: 0;
+    /* opacity: 0; */
     transform: translateY(-10px);
   }
 </style>

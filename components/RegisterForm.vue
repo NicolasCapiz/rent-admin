@@ -1,8 +1,7 @@
 <script setup lang="ts">
   import { ref } from "vue";
-  import { useRouter } from "vue-router"; // Importar useRouter para la redirección
+  import { useNuxtApp, navigateTo } from "#app"; 
   import { useAuth } from "../composables/useAuth";
-  import { useNuxtApp } from "#app"; // Importar useNuxtApp para acceder a $notyf
 
   const email = ref("");
   const password = ref("");
@@ -16,8 +15,6 @@
   // Usar el composable `useAuth`
   const { register: authRegister, error } = useAuth(); // Usar `register` del composable `useAuth`
 
-  // Router para la redirección
-  const router = useRouter();
 
   // Función para cambiar la visibilidad de la contraseña
   const togglePasswordVisibility = () => {
@@ -47,7 +44,7 @@
       $notyf.error(error.value); // Mostrar el mensaje de error desde el backend
     } else {
       $notyf.success("Registro exitoso. ¡Por favor, inicia sesión!"); // Mostrar el mensaje de éxito
-      router.push("/login"); // Redirigir al login después del registro exitoso
+      navigateTo("/login"); // Redirigir al login después del registro exitoso
     }
   };
 </script>

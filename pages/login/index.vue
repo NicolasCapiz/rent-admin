@@ -1,8 +1,8 @@
 <script setup lang="ts">
   import { ref } from "vue";
   import { useAuth } from "../../composables/useAuth";
-  import { useNuxtApp } from "#app";
-  import { useRouter } from "vue-router";
+  import { useNuxtApp, navigateTo } from "#app";
+
   definePageMeta({
     layout: false,
     middleware: "auth",
@@ -14,7 +14,6 @@
 
   // Usar el composable `useAuth`
   const { login, error } = useAuth();
-  const router = useRouter();
 
   // Función para cambiar la visibilidad de la contraseña
   const togglePasswordVisibility = () => {
@@ -27,17 +26,17 @@
     await login(email.value, password.value);
     console.log("aca entre?");
 
-    if (error.value) {
+    if (error) {
       $notyf.error("Error al iniciar sesión. Por favor, verifica tus credenciales.");
     } else {
       $notyf.success("Inicio de sesión exitoso. ¡Bienvenido de nuevo!");
-      router.push("/renter"); // Redirigir al home
+      navigateTo("/renter"); // Redirigir al home
     }
   };
 </script>
 
 <template>
-  <div class="flex min-h-screen">
+  <div class="flex min-h-screen w-screen">
     <!-- Left Side Image/Illustration -->
     <div
       class="hidden w-1/2 items-center justify-center bg-gradient-to-br from-purple-600 to-indigo-500 lg:flex"

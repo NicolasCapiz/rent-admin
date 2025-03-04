@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineEmits, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { locationService } from "@/services/locationService";
 import { adjustmentService } from "@/services/adjustmentService";
 import { useNuxtApp } from "#app";
@@ -205,7 +205,7 @@ const closeModal = () => {
   </div>
 </div>
 
-        <div v-if="!form.applyToAll">
+        <div v-show="!form.applyToAll">
           <label class="block text-sm font-medium text-muted-foreground">Seleccionar Locales:</label>
           <multiselect
             v-model="form.selectedLocations"

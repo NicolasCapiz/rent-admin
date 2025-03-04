@@ -1,11 +1,11 @@
 <template>
   <header class="sticky top-0 z-20 border-b bg-background/80 backdrop-blur">
-    <div class="container flex h-16 items-center justify-between">
+    <div class="p-5 flex h-16 items-center justify-between">
       <!-- Logo and page title -->
       <div class="flex items-center gap-3">
         <!-- Botón para abrir el menú lateral (sidebar) en pantallas móviles -->
         <button
-          v-if="!isLoginPage"
+          v-show="!isLoginPage"
           @click="toggleSidebar"
           aria-label="Open menu"
           class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border bg-background lg:hidden"
@@ -20,12 +20,12 @@
           class="h-7 w-7 object-contain"
         />
         <!-- Page title -->
-        <NuxtLink class="text-xl font-bold" to="/">Analytics</NuxtLink>
+        <NuxtLink class="text-xl font-bold" to="/">Rent-Management</NuxtLink>
       </div>
 
       <div class="flex items-center gap-5">
         <button
-          v-if="!isLoginPage"
+          v-show="!isLoginPage"
           @click="toggleTheme"
           class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border bg-background"
         >
@@ -33,7 +33,7 @@
         </button>
 
         <!-- Profile Dropdown menu -->
-        <HMenu v-if="!isLoginPage" as="div" class="relative">
+        <HMenu v-show="!isLoginPage" as="div" class="relative">
           <HMenuButton
             class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border bg-background"
           >
@@ -55,7 +55,7 @@
               </div>
               <div class="p-1">
                 <template v-for="(p, i) in profileMenuOptions" :key="i">
-                  <HMenuItem v-if="!p.divider" v-slot="{ active }">
+                  <HMenuItem v-show="!p.divider" v-slot="{ active }">
                     <button
                       :class="[active && 'bg-muted']"
                       class="inline-flex w-full items-center rounded-md p-2 text-sm font-medium"
@@ -63,7 +63,7 @@
                       {{ p.title }}
                     </button>
                   </HMenuItem>
-                  <hr v-if="p.divider" class="my-1" />
+                  <hr v-show="p.divider" class="my-1" />
                 </template>
               </div>
             </HMenuItems>
@@ -75,8 +75,7 @@
 </template>
 
 <script setup lang="ts">
-  import { useState } from "#app";
-  import { useRoute } from "vue-router";
+  import { useState,useRoute } from "#app";
 
   const route = useRoute();
   const isLoginPage = route.path === "/login" || route.path === "/register";

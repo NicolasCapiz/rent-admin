@@ -4,7 +4,12 @@ import scrollbar from "tailwind-scrollbar";
 
 export default <Partial<Config>>{
   darkMode: "class",
-  content: ["./src/**/*.{vue,js,ts,jsx,tsx}", "./public/index.html"],
+  content: ["./components/**/*.{vue,js,ts}",
+  "./layouts/**/*.vue",
+  "./pages/**/*.vue",
+  "./app.vue",
+  "./plugins/**/*.{js,ts}",
+  "./nuxt.config.{js,ts}",],
   theme: {
     extend: {
       container: {

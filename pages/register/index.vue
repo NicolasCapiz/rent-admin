@@ -1,8 +1,8 @@
 <script setup lang="ts">
   import { ref } from "vue";
   import { useAuth } from "../../composables/useAuth";
-  import { useNuxtApp } from "#app";
-  import { useRouter } from "vue-router";
+  import { useNuxtApp, navigateTo } from "#app";
+  
   definePageMeta({
     layout: false,
     middleware: "auth",
@@ -16,7 +16,7 @@
   const showPasswordConfirm = ref(false);
 
   const { register, error } = useAuth();
-  const router = useRouter();
+
 
   const togglePasswordVisibility = () => {
     showPassword.value = !showPassword.value;
@@ -40,13 +40,13 @@
       $notyf.error("Error al registrarse. Por favor, verifica los datos.");
     } else {
       $notyf.success("Registro exitoso. ¡Bienvenido!");
-      router.push("/home");
+      navigateTo("/home");
     }
   };
 </script>
 
 <template>
-  <div class="flex min-h-screen">
+  <div class="flex min-h-screen w-screen">
     <!-- Left Side Image/Illustration -->
     <div
       class="hidden w-1/2 items-center justify-center bg-gradient-to-br from-purple-600 to-indigo-500 lg:flex"

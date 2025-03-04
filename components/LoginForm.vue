@@ -20,7 +20,7 @@
     const { $notyf } = useNuxtApp(); // Acceder a $notyf desde useNuxtApp
 
     await login(email.value, password.value);
-    if (error.value) {
+    if (error) {
       // Mostrar un mensaje de error usando $notyf
       $notyf.error("Error al iniciar sesión. Por favor, verifica tus credenciales.");
     } else {

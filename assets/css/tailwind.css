@@ -2,22 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); */
+
 @layer base {
   :root {
-    
-    --period-monthly: hsl(180, 100%, 40%); /* Verde esmeralda */
-    --period-bimonthly: hsl(195, 100%, 45%); /* Azul neón */
-    --period-quarterly: hsl(220, 100%, 40%); /* Azul profundo */
-    --period-semiannual: hsl(260, 90%, 45%); /* Morado intenso */
-    --period-annual: hsl(340, 90%, 45%); /* Rojo pasión */
-    
+    /* 🎨 Colores personalizados */
+    --period-monthly: 180, 100%, 40%; /* Verde esmeralda */
+    --period-bimonthly: 195, 100%, 45%; /* Azul neón */
+    --period-quarterly: 220, 100%, 40%; /* Azul profundo */
+    --period-semiannual: 260, 90%, 45%; /* Morado intenso */
+    --period-annual: 340, 90%, 45%; /* Rojo pasión */
+
+    --green: 170, 100%, 40%; /* Un verde ligeramente más cercano al amarillo */
+    --red: 350, 90%, 45%;    /* Un rojo con un matiz un poco más cálido */
+
+    --period-quarterly: 220, 100%, 40%;
+
+    /* 🎨 Paleta de colores */
     --background: 0 0% 100%;
     --foreground: 222.2 47.4% 11.2%;
-
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-
-    --modal: 0 0% 95%;
+    
+    --muted: 223 47% 11%;
     --modal-foreground: 222.2 47.4% 11.2%;
 
     --popover: 0 0% 100%;
@@ -40,28 +47,20 @@
 
     --destructive: 0 100% 50%;
     --destructive-foreground: 210 40% 98%;
-
     --ring: 215 20.2% 65.1%;
-
     --radius: 0.5rem;
   }
 
+  /* 🎨 Modo oscuro */
   .dark {
     --background: 224 71% 4%;
     --foreground: 213 31% 91%;
-
     --muted: 223 47% 11%;
     --muted-foreground: 215.4 16.3% 56.9%;
 
-    --modal: 220 15% 28%;
-    --modal-foreground: 213 31% 31%;
+    --modal: 223 47% 11%;
+    --modal-foreground: 223 31% 31%;
     
-    --accent: 216 34% 17%;
-    --accent-foreground: 210 40% 98%;
-
-    --popover: 224 71% 4%;
-    --popover-foreground: 215 20.2% 65.1%;
-
     --border: 216 34% 17%;
     --input: 216 34% 17%;
 
@@ -76,93 +75,171 @@
 
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
-
-    --ring: 216 34% 17%;
-
-    --radius: 0.5rem;
   }
-}
 
-@layer base {
-  * {
-    @apply border-border;
-  }
   body {
-    @apply bg-background text-foreground selection:bg-primary selection:text-primary-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    line-height: 1.5;
   }
-   /* Estilos globales para scrollbar */
-   ::-webkit-scrollbar {
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  /* 🔹 Scrollbar */
+  ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    background: hsl(var(--muted)); /* Fondo del track */
+    background: hsl(var(--muted));
     border-radius: 10px;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground)); /* Color del thumb */
+    background: hsl(var(--muted-foreground));
     border-radius: 10px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--foreground)); /* Color del thumb al hover */
+    background: hsl(var(--foreground));
   }
 
-  /* Scrollbar en Firefox */
   * {
     scrollbar-color: hsl(var(--muted-foreground)) hsl(var(--muted));
     scrollbar-width: thin;
   }
 }
 
+@layer components {
+  /* 🏷️ Dropdown */
+  .dropdown-enter-active,
+  .dropdown-leave-active {
+    transition: all 0.2s ease-in-out;
+  }
 
-.dropdown-enter-active,
-.dropdown-leave-active {
-  transition: all 0.2s ease-in-out;
+  .dropdown-enter-from,
+  .dropdown-leave-to {
+    transform: translateY(-10px);
+  }
+
+  /* 📊 Dashboard */
+  .dashboard-grid {
+    display: grid;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  .stat-card {
+    background-color: hsl(var(--card));
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-value {
+    font-size: 1.875rem;
+    font-weight: bold;
+    color: hsl(var(--primary));
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* 🟦 Modales */
+  .modal-content {
+    background-color: hsl(var(--modal));
+    padding: 1rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    max-width: 28rem;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .modal-header {
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .modal-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .modal-body {
+    display: grid;
+    gap: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+
+  /* 🎛 Filtros */
+  .filters {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: hsl(var(--secondary));
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .filters label {
+    font-weight: 500;
+    color: hsl(var(--secondary-foreground));
+  }
+
+  .filters select {
+    background-color: hsl(var(--background));
+    border: 1px solid hsl(var(--border));
+    color: hsl(var(--foreground));
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    min-width: 120px;
+    transition: border-color 0.2s ease-in-out;
+  }
+
+  .filters select:hover {
+    border-color: hsl(var(--primary));
+  }
+
+  .filters select:focus {
+    outline: none;
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 2px hsl(var(--primary));
+  }
+
+
+
+  /* 📌 Estilos Responsivos */
+  @media (min-width: 640px) {
+    .modal-content {
+      padding: 1rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .dashboard-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .dashboard-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
 }
-
-.dropdown-enter-from,
-.dropdown-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-.multiselect .multiselect__tags {
-  @apply dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300
-}
-
-.multiselect__tags .multiselect__single {
-  @apply dark:bg-gray-900
-}
-
-.multiselect .multiselect__input {
-  @apply dark:bg-gray-900
-}
-
-.multiselect .multiselect__content-wrapper {
-  @apply dark:bg-gray-900 dark:text-gray-300 dark:border-gray-800
-}
-
-.dark .multiselect__option--selected {
-  background-color: hsl(var(--primary-foreground)); 
-  /* color: hsl(var(--background)); Texto oscuro */
-}
-
-.status-1 {
-  background-color: hsl(var(--success, 120 50% 40%)); /* Verde */
-  color: white;
-}
-
-/* Status Finalizado - Rojo */
-.status-2 {
-  background-color: hsl(var(--error, 0 63% 31%)); /* Rojo */
-  color: white;
-}
-
-.period-1 { background-color: var(--period-monthly); color: white; text-align: center; }
-.period-2 { background-color: var(--period-bimonthly); color: white; text-align: center; }
-.period-4 { background-color: var(--period-quarterly); color: white; text-align: center; }
-.period-8 { background-color: var(--period-semiannual); color: white; text-align: center; }
-.period-16 { background-color: var(--period-annual); color: white; text-align: center; }

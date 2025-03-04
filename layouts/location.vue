@@ -17,10 +17,23 @@
       title: "Direccion",
       key: "address",
     },
-    {
-      title: "Alquiler",
-      key: "price",
-    },
+    // {
+    //   title: "Alquiler",
+    //   key: "totalRent",
+    //   isEditable: false,
+    // },
+    // {
+    //   title: "Pagado",
+    //   key: "totalPaid",
+    //   isEditable: false,
+    //   css: true
+    // },
+    // {
+    //   title: "Falta Pagar",
+    //   key: "remainingAmount",
+    //   isEditable: false,
+    //   css: true
+    // },
     {
       title: "Inquilino",
       key: "renterId",
@@ -30,24 +43,6 @@
     },
   ]);
 
-  const locations = ref<BodyTable[]>([]);
-
-  const token = localStorage.getItem("token");
-  const fetchLocations = async () => {
-    try {
-      const response = await $fetch<BodyTable[]>("locations", {
-        baseURL: "http://localhost:3307",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      locations.value = response;
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  fetchLocations();
 </script>
 <template>
   <div class="location h-full w-full">
@@ -55,7 +50,6 @@
       model="locations"
       title="Locales"
       :head="head"
-      :content="locations"
       :isEditable="true"
       :add="true"
       :remove="true"

@@ -8,22 +8,13 @@
   const head = ref<HeadTable[]>([
     { title: "Nombre", key: "firstName" },
     { title: "Dirección", key: "email" },
-    { title: "Dni", key: "dni", type: 'number' },
   ]);
 
 </script>
 
 <template>
-  <div class="renter-container flex h-full w-full flex-col items-center justify-center">
-    <Table
-      model="users/renters"
-      title="Inquilinos"
-      :head="head"
-      :isEditable="true"
-      :add="true"
-      :remove="true"
-      class="w-full"
-    />
+  <div class="settings-container flex h-full w-full flex-col items-center justify-center">
+    <h1>settings</h1>
   </div>
 </template>
 

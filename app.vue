@@ -1,11 +1,12 @@
 <script setup lang="ts">
   import { useAuth } from "./composables/useAuth";
   import { computed, ref, onMounted } from "vue";
-  import { useRoute } from "vue-router";
+  import { useRoute } from "#app";
   import "@fortawesome/fontawesome-free/css/all.css";
 
   // Obtener el estado de autenticación
-  const { isAuthenticated } = useAuth();
+  // const { isAuthenticated } = useAuth();
+  const isAuthenticated = ref(false);
 
   // Obtener la ruta actual
   const route = useRoute();
@@ -15,18 +16,23 @@
 
   // Ejecutar solo en el cliente
   onMounted(() => {
-    isClientChecked.value = true; // Se asegura de que estamos en el cliente
+    if(process.client){
+      const auth = useAuth();
+      auth.getUserDetails();
+      isAuthenticated.value = auth.isAuthenticated;
+      isClientChecked.value = true; // Se asegura de que estamos en el cliente
+    }
   });
 
   // Computed para verificar si mostrar el Header y Sidebar
   const shouldShowHeaderAndSidebar = computed(() => {
     // Si no hemos chequeado el cliente aún, no mostrar el header
     if (!isClientChecked.value) return false;
-    console.log("isAuthenticated.value", isAuthenticated.value);
+    console.log("isAuthenticated.value", isAuthenticated);
 
     // Verificar si está autenticado y en rutas específicas
     return (
-      isAuthenticated.value &&
+      isAuthenticated &&
       route.path !== "/home" &&
       route.path !== "/login" &&
       route.path !== "/register"
@@ -40,17 +46,14 @@
 <template>
   <div class="flex min-h-screen flex-col">
     <!-- Mostrar el Header solo si el usuario está autenticado y no está en /home -->
-    <Header v-if="shouldShowHeaderAndSidebar" />
+    <Header v-show="shouldShowHeaderAndSidebar" />
 
-    <div
-      :class="{
-        'p-5': !valuePathNeutral,
-      }"
-      class="flex-1 p-4 lg:grid lg:grid-cols-12 lg:gap-5"
-    >
+    <div   :key="route.path"
+      :class="[ valuePathNeutral ? 'flex-1 lg:grid lg:grid-cols-12 lg:gap-5' : 'p-5 flex-1 lg:grid lg:grid-cols-12 lg:gap-5' ]">
+    
       <!-- Mostrar el Sidebar solo si el usuario está autenticado y no está en /home -->
       <Sidebar
-        v-if="shouldShowHeaderAndSidebar"
+        v-show=" shouldShowHeaderAndSidebar"
         class="sticky top-[65px] h-[calc(100vh-105px)] bg-card lg:col-span-2 xl:col-span-2"
       />
 
@@ -64,6 +67,7 @@
         class="flex flex-grow flex-col items-center bg-card text-card-foreground"
       >
         <NuxtLayout>
+          
           <NuxtPage />
         </NuxtLayout>
       </main>

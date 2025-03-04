@@ -9,24 +9,24 @@
     <div
       class="flex h-full w-full flex-col gap-5 overflow-y-auto rounded-md border bg-card scrollbar-thin scrollbar-thumb-input scrollbar-thumb-rounded-md"
     >
-      <SidebarItem :links="menu" />
+      <SidebarItem :links="menu" @click="closeSidebar"/>
 
       <div class="mt-auto">
-        <SidebarItem :links="bottomMenu" />
+        <SidebarItem :links="bottomMenu"  />
         <Button
           icon="heroicons:arrow-left-on-rectangle"
           title="Logout"
-          v-if="isLogin"
+          v-show="isLogin"
           @click="toggleLogout"
         />
-        <Button title="Login" v-if="!isLogin" @click="toggleLogout" />
+        <Button title="Login" v-show="!isLogin" @click="toggleLogout" />
       </div>
     </div>
   </aside>
 </template>
 
 <script setup lang="ts">
-  import { ref } from "vue";
+  import { onMounted, ref } from "vue";
   import { useState } from "#app"; // Usar el mismo estado global
   import type { Sidebar } from "@/types/sidebar";
   import Button from "@/components/buttons/Button.vue";
@@ -35,9 +35,9 @@
 
   const menu = ref<Sidebar[]>([
     {
-      title: "Inicio",
-      icons: "heroicons:home",
-      link: "/home",
+      title: "Estadisticas",
+      icons: "heroicons-outline:chart-bar",
+      link: "/dashboards",
     },
     {
       title: "Inquilinos",
@@ -55,9 +55,19 @@
       link: "/payment",
     },
     {
+      title: "Resumen de Pagos",
+      icons: "heroicons:chart-pie",
+      link: "/paymentRecord",
+    },
+    {
       title: "Aumentos",
       icons: "heroicons:adjustments-horizontal",
       link: "/adjustment",
+    },
+    {
+      title: "Contratos",
+      icons: "heroicons:document-text",
+      link: "/leaseContract",
     },
   ]);
 
@@ -79,4 +89,18 @@
   const toggleLogout = () => {
     isLogin.value = !isLogin.value;
   };
+
+  const closeSidebar = () => {
+    if (process.client) {
+      if (window.innerWidth < 1024) {
+        isOpen.value = false;
+      }
+    }
+  };
+
+  onMounted(() => {
+  if (window.innerWidth < 1024) {
+    isOpen.value = false;
+  }
+});
 </script>

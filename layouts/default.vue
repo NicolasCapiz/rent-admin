@@ -1,9 +1,5 @@
-<script setup lang="ts"></script>
 <template>
   <div class="h-full w-full">
-    <!-- <StatusCard /> -->
-    <!-- <NewCustomers /> -->
-    <!-- <SalesChart /> -->
-    <slot />
+    <slot /> <!-- Importante para renderizar las páginas -->
   </div>
 </template>
