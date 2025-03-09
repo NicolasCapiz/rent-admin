@@ -2,7 +2,10 @@
 import { useAuth } from "../composables/useAuth";
 import { useNuxtApp } from "#app";
 
-const apiBaseURL = "http://localhost:3307"; // Ajusta según tu configuración
+import { useRuntimeConfig } from "nuxt/app";
+
+const config = useRuntimeConfig();
+const apiBaseURL = config.public.apiBase as string;
 
 export const leaseContractService = {
   /**

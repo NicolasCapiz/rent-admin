@@ -9,7 +9,10 @@ interface State {
 }
 
 import { defineStore } from "pinia";
-const baseURL = "http://localhost:3307";
+import { useRuntimeConfig } from "nuxt/app";
+
+const config = useRuntimeConfig();
+const baseURL = config.public.apiBase;
 
 export const useSelect = defineStore("select", {
   state: (): State => ({

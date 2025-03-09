@@ -1,12 +1,14 @@
 import { useAuth } from '@/composables/useAuth';
+import { useRuntimeConfig } from "nuxt/app";
 
-const API_BASE_URL = "http://localhost:3307";
+const config = useRuntimeConfig();
+const API_BASE_URL = config.public.apiBase as string;
 
 export const dashboardService = {
   async getRevenue(filters) {
     const auth = useAuth();
     const token = auth.getToken();
-    
+
     return await $fetch(`${API_BASE_URL}/dashboard/revenue`, {
       method: "GET",
       query: filters,
@@ -19,7 +21,7 @@ export const dashboardService = {
   async getOccupancy(filters) {
     const auth = useAuth();
     const token = auth.getToken();
-    
+
     return await $fetch(`${API_BASE_URL}/dashboard/occupancy`, {
       method: "GET",
       query: filters,
@@ -32,7 +34,7 @@ export const dashboardService = {
   async getPaymentStatus(filters) {
     const auth = useAuth();
     const token = auth.getToken();
-    
+
     return await $fetch(`${API_BASE_URL}/dashboard/payment-status`, {
       method: "GET",
       query: filters,
@@ -45,7 +47,7 @@ export const dashboardService = {
   async getRenterDistribution(filters) {
     const auth = useAuth();
     const token = auth.getToken();
-    
+
     return await $fetch(`${API_BASE_URL}/dashboard/renter-distribution`, {
       method: "GET",
       query: filters,
@@ -58,7 +60,7 @@ export const dashboardService = {
   async getRentComparison(filters) {
     const auth = useAuth();
     const token = auth.getToken();
-    
+
     return await $fetch(`${API_BASE_URL}/dashboard/rent-comparison`, {
       method: "GET",
       query: filters,
@@ -71,7 +73,7 @@ export const dashboardService = {
   async getDailyRevenue(filters) {
     const auth = useAuth();
     const token = auth.getToken();
-    
+
     return await $fetch(`${API_BASE_URL}/dashboard/daily-revenue`, {
       method: "GET",
       query: filters,
@@ -84,7 +86,7 @@ export const dashboardService = {
   async getLocations() {
     const auth = useAuth();
     const token = auth.getToken();
-    
+
     return await $fetch(`${API_BASE_URL}/dashboard/locations`, {
       method: "GET",
       headers: {

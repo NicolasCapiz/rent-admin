@@ -9,7 +9,10 @@ import AffectedLocationsModal from "@/components/modals/AffectedLocations.vue"; 
 import { useNuxtApp } from "#app"; 
 import { nextTick } from "vue";
 import { computed } from "vue";
+import { useRuntimeConfig } from "nuxt/app";
 
+const config = useRuntimeConfig();
+const apiURL = config.public.apiBase as string;
 const TYPE_ADJUSTMENT = {
   AMOUNT: 1,
   PERCENTAGE: 2,
@@ -85,7 +88,7 @@ const finalizeAdjustment = async () => {
   try {
     const response = await $fetch<{ message: string }>(`priceAdjustments/${selectedAdjustment.value.id}/finalize`, {
       method: "PUT",
-      baseURL: "http://localhost:3307",
+      baseURL: apiURL,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,

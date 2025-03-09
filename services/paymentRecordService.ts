@@ -1,7 +1,10 @@
 // src/services/paymentRecordService.ts
 import { useAuth } from "@/composables/useAuth";
 
-const API_BASE_URL = "http://localhost:3307";
+import { useRuntimeConfig } from "nuxt/app";
+
+const config = useRuntimeConfig();
+const API_BASE_URL = config.public.apiBase as string;
 
 export const paymentRecordService = {
   /**

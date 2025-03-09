@@ -1,5 +1,7 @@
-const apiBaseURL = "http://localhost:3307"; 
+import { useRuntimeConfig } from "nuxt/app";
 
+const config = useRuntimeConfig();
+const apiBaseURL = config.public.apiBase as string;
 export const authService = {
   async login(email: string, password: string) {
     try {

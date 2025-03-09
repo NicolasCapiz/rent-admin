@@ -1,8 +1,10 @@
 import { ref, computed, onMounted } from "vue";
 import { defineStore } from "pinia";
 import { navigateTo, useCookie } from "#app";
+import { useRuntimeConfig } from "nuxt/app";
 
-const apiBaseURL = "http://localhost:3307";
+const config = useRuntimeConfig();
+const apiBaseURL = config.public.apiBase;
 
 export const useAuth = defineStore("auth", () => {
   const user = ref(null);
@@ -19,7 +21,7 @@ export const useAuth = defineStore("auth", () => {
 
   // ✅ Obtiene el token desde la cookie
   const getToken = () => token?.value || null;
-  
+
   // ✅ Verifica si el token ha expirado (JWT)
   const isTokenExpired = () => {
     const currentToken = getToken();

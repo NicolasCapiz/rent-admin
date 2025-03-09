@@ -5,9 +5,10 @@ import { computed, ref, onMounted, watch, nextTick } from "vue";
 import type { HeadTable } from "../types/headTable";
 import type { BodyTable } from "../types/bodyTable";
 import { useSelect } from "../composables/useSelect";
-import { useNuxtApp } from "#app";
+import { useNuxtApp,useRuntimeConfig } from "#app";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 import { onBeforeUnmount } from "vue";
+const config = useRuntimeConfig()
 
 const { $notyf } = useNuxtApp();
 
@@ -111,7 +112,7 @@ const fetchData = async () => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      baseURL: "http://localhost:3307",
+      baseURL: config.public.apiBase,
       query,
     });
 
@@ -188,7 +189,7 @@ const apply = async () => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      baseURL: "http://localhost:3307",
+      baseURL: config.public.apiBase,
       body: updateRows,
     });
 

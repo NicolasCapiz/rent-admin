@@ -1,6 +1,8 @@
 import { useAuth } from "../composables/useAuth";
+import { useRuntimeConfig } from "nuxt/app";
 
-const apiBaseURL = "http://localhost:3307"; // Cambia esto según tu configuración
+const config = useRuntimeConfig();
+const apiBaseURL = config.public.apiBase as string;
 
 
 export const locationService = {
@@ -31,7 +33,7 @@ export const locationService = {
   // Función para obtener detalles de una localidad por ID
   async getLocationById(locationId: number) {
     const auth = useAuth();
-const token = auth.getToken();
+    const token = auth.getToken();
     try {
       if (!token) {
         throw new Error("Token no encontrado");
@@ -55,7 +57,7 @@ const token = auth.getToken();
   // Función para crear una nueva localidad (opcional)
   async createLocation(data: { name: string; address: string }) {
     const auth = useAuth();
-const token = auth.getToken();
+    const token = auth.getToken();
     try {
       if (!token) {
         throw new Error("Token no encontrado");
@@ -80,7 +82,7 @@ const token = auth.getToken();
   // Función para eliminar una localidad por ID (opcional)
   async deleteLocation(locationId: number) {
     const auth = useAuth();
-const token = auth.getToken();
+    const token = auth.getToken();
     try {
       if (!token) {
         throw new Error("Token no encontrado");

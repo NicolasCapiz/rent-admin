@@ -1,7 +1,9 @@
 import { useAuth } from "../composables/useAuth";
 import { useNuxtApp } from "#app";
+import { useRuntimeConfig } from "nuxt/app";
 
-const apiBaseURL = "http://localhost:3307"; // Cambia según tu configuración
+const config = useRuntimeConfig();
+const apiBaseURL = config.public.apiBase as string;
 
 const auth = useAuth();
 const token = auth.getToken();
@@ -37,7 +39,7 @@ export const adjustmentService = {
       if (!token) {
         throw new Error("Token no encontrado");
       }
-      
+
       const response = await $fetch(`${apiBaseURL}/priceAdjustments`, {
         method: "POST",
         headers: {

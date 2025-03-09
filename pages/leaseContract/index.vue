@@ -13,7 +13,10 @@ import CreateLeaseContractModal from "@/components/modals/CreateLeaseContract.vu
 import { useNuxtApp } from "#app";
 import { leaseContractService } from "@/services/leaseContractService";
 import { useAuth } from "@/composables/useAuth";
+import { useRuntimeConfig } from "nuxt/app";
 
+const config = useRuntimeConfig();
+const apiURL = config.public.apiBase as string;
 const { $notyf } = useNuxtApp();
 const selectedContract = ref<BodyTable | null>(null);
 const contracts = ref<BodyTable[]>([]);
@@ -67,7 +70,7 @@ const openCreateLeaseContractModal = () => {
 
 // Listener para el ícono de PDF: abre el PDF en una nueva pestaña
 const openContractPdf = async (row: BodyTable) => {
-  const url = `http://localhost:3307/leaseContracts/${row.id}/pdf`;
+  const url = `${apiURL}/leaseContracts/${row.id}/pdf`;
   try {
     const response = await fetch(url, {
       method: "GET",
@@ -136,7 +139,7 @@ const finalizeContract = async () => {
   try {
     const response = await $fetch<{ message: string }>(`leaseContracts/${selectedContract.value.id}/finalize`, {
       method: "PUT",
-      baseURL: "http://localhost:3307",
+      baseURL: apiURL,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
