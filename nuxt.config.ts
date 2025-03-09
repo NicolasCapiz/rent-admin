@@ -11,7 +11,8 @@ export default defineNuxtConfig({
       apiBase: "http://localhost:3307/", // URL base del backend
     },
   },
-  css: ["@/assets/css/tailwind.css"], // 📌 Mantén solo aquí el CSS
+  css: ['@fortawesome/fontawesome-free/css/all.min.css',
+    "@/assets/css/tailwind.css"], // 📌 Mantén solo aquí el CSS
 
   modules: [
     "@nuxtjs/tailwindcss",

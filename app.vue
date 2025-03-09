@@ -2,7 +2,7 @@
   import { useAuth } from "./composables/useAuth";
   import { computed, ref, onMounted } from "vue";
   import { useRoute } from "#app";
-  import "@fortawesome/fontawesome-free/css/all.css";
+  import "@fortawesome/fontawesome-free/css/all.min.css";
 
   // Obtener el estado de autenticación
   // const { isAuthenticated } = useAuth();
@@ -81,7 +81,7 @@
   }
 
   .main-section {
-    color: hsl(var(--card-foreground));
+    /* color: hsl(var(--card-foreground)); */
     border-radius: var(--radius);
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   }

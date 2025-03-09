@@ -284,20 +284,20 @@ const handleAffectedClick = (row: BodyTable) => {
   <div class="flex h-full w-full flex-col">
     <!-- Contenedor adaptable para Título, Editar y Buscar -->
     <div class="flex flex-col gap-2 pb-2 lg:flex-row lg:items-center lg:justify-between">
-      <div v-show="!showChanges || isLargeScreen" class="flex w-full items-center justify-between">
-        <h2 class="text-lg font-semibold">{{ title }}</h2>
+      <div v-show="!showChanges || isLargeScreen" class="flex w-full items-center justify-between flex-col lg:flex-row">
+        <h2 class="hidden lg:block text-lg font-semibold">{{ title }}</h2>
         <div class="flex gap-2">
           <!-- Renderizar acciones si se pasan -->
           <button v-for="action in actions" :key="action.modal" @click="$emit(`${action.operation}-${action.modal}`)"
             :class="[
-              'bg-blue-500 text-white px-4 py-2 rounded',
+              'text-sm lg:text-lg bg-blue-500 text-white px-4 py-2 rounded',
               (action.enabled ?? true) ? 'opacity-100 cursor-pointer' : 'opacity-50 cursor-not-allowed'
 
             ]">
             {{ action.title }}
           </button>
 
-          <button v-show="isEditable" @click="startEdit" class="rounded bg-primary px-4 py-2 text-white">
+          <button v-show="isEditable" @click="startEdit" class="text-sm lg:text-lg rounded bg-primary px-4 py-2 text-white">
             Editar
           </button>
         </div>
@@ -308,19 +308,19 @@ const handleAffectedClick = (row: BodyTable) => {
           +
         </button>
         <button @click="apply" :class="[
-          'w-1/3 rounded px-4 py-2',
+          'text-sm lg:text-lg w-1/3 rounded px-4 py-2 ',
           isEditedOrNew
             ? 'bg-green-500 text-white hover:bg-green-700'
             : 'cursor-not-allowed bg-gray-500 text-white',
         ]" :disabled="!isEditedOrNew">
           Aplicar
         </button>
-        <button @click="cancel" class="w-1/3 rounded bg-red-500 px-4 py-2 text-white hover:bg-red-700">
+        <button @click="cancel" class="text-sm lg:text-lg w-1/3 rounded bg-red-500 px-4 py-2 text-white hover:bg-red-700">
           Cancelar
         </button>
       </div>
 
-      <div :class="{ 'w-full': !isLargeScreen }" class="flex lg:w-auto">
+      <div :class="{ 'w-full': !isLargeScreen }" class=" lg:w-auto">
         <input v-model="searchQuery" @input="fetchData" placeholder="Buscar..."
           class="search-input flex-grow rounded border bg-muted px-4 py-2 text-white" />
       </div>
@@ -358,9 +358,9 @@ const handleAffectedClick = (row: BodyTable) => {
                 &minus;
               </button>
             </td>
-            <td v-for="(column, colIndex) in head" :key="colIndex" class="px-3 py-2 text-left justify-items-center">
+            <td v-for="(column, colIndex) in head" :key="colIndex" class=" px-3 py-2 text-left justify-items-center">
               <!-- Verifica si el campo debe ser visible -->
-              <div v-show="!column.isVisible || row[column.keyVisible] === column.isVisible">
+              <div v-show="!column.isVisible || row[column.keyVisible] === column.isVisible" class="w-full">
 
                 <div v-if="column.isConstant">
                   <Listbox v-model="row[column.key]" @update:modelValue="markAsEdited(row)">
@@ -563,21 +563,13 @@ th:first-child {
     width: 100%;
   }
 
-  th {
-    font-size: 12px;
-    /* Reduce el tamaño del texto en encabezados */
-    padding: 6px 8px;
-    /* Ajusta el padding para mejor visualización */
-    white-space: nowrap;
-  }
-
-  td {
-    font-size: 14px;
-    padding: 8px;
-    text-align: left;
-    white-space: nowrap;
-    /* Evita que el texto se corte */
-  }
+  th, td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 8px;
+  font-size: 14px;
+}
 
   /* Ajusta los botones de selección */
   .listbox-button {
@@ -593,44 +585,44 @@ th:first-child {
     border-bottom: 1px solid var(--border);
   }
 
-
+}
   .period-1 {
-    background-color: var(--period-monthly);
+    background-color: hsl(var(--period-monthly));
 
   }
 
   .period-2 {
-    background-color: var(--period-bimonthly);
+    background-color: hsl(var(--period-bimonthly));
 
   }
 
   .period-4 {
-    background-color: var(--period-quarterly);
+    background-color: hsl(var(--period-quarterly));
 
   }
 
   .period-8 {
-    background-color: var(--period-semiannual);
+    background-color: hsl(var(--period-semiannual));
 
   }
 
   .period-16 {
-    background-color: var(--period-annual);
+    background-color: hsl(var(--period-annual));
   }
 
   .status-1 {
-    background-color: var(--green);
+    background-color: hsl(var(--green));
   }
 
   .status-2 {
-    background-color: var(--red);
+    background-color: hsl(var(--red));
   }
 
   .active-true {
-    background-color: var(--green);
+    background-color: hsl(var(--green));
   }
 
   .active-false {
-    background-color: var(--red);
+    background-color: hsl(var(--red));
   }
-}</style>
+</style>

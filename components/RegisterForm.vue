@@ -1,140 +1,114 @@
 <script setup lang="ts">
-  import { ref } from "vue";
-  import { useNuxtApp, navigateTo } from "#app"; 
-  import { useAuth } from "../composables/useAuth";
+import { ref } from "vue";
+import { useNuxtApp, navigateTo } from "#app";
+import { useAuth } from "../composables/useAuth";
 
-  const email = ref("");
-  const password = ref("");
-  const confirmPassword = ref("");
-  const firstName = ref("");
-  const lastName = ref("");
-  const showPassword = ref(false);
-  const showConfirmPassword = ref(false);
-  const confirmPasswordError = ref(""); // Para manejar el error de confirmación de contraseña
+const email = ref("");
+const password = ref("");
+const confirmPassword = ref("");
+const firstName = ref("");
+const lastName = ref("");
+const showPassword = ref(false);
+const showConfirmPassword = ref(false);
 
-  // Usar el composable `useAuth`
-  const { register: authRegister, error } = useAuth(); // Usar `register` del composable `useAuth`
+const { register, error } = useAuth();
+const { $notyf } = useNuxtApp();
 
+const togglePasswordVisibility = () => {
+  showPassword.value = !showPassword.value;
+};
 
-  // Función para cambiar la visibilidad de la contraseña
-  const togglePasswordVisibility = () => {
-    showPassword.value = !showPassword.value;
-  };
+const toggleConfirmPasswordVisibility = () => {
+  showConfirmPassword.value = !showConfirmPassword.value;
+};
 
-  const toggleConfirmPasswordVisibility = () => {
-    showConfirmPassword.value = !showConfirmPassword.value;
-  };
+const handleRegister = async () => {
+  if (password.value !== confirmPassword.value) {
+    $notyf.error("Las contraseñas no coinciden.");
+    return;
+  }
 
-  // Función de registro
-  const register = async () => {
-    const { $notyf } = useNuxtApp(); // Acceder a $notyf desde useNuxtApp
+  await register(email.value, password.value, firstName.value, lastName.value);
 
-    // Validar la confirmación de la contraseña
-    if (password.value !== confirmPassword.value) {
-      confirmPasswordError.value = "Las contraseñas no coinciden";
-      $notyf.error(confirmPasswordError.value); // Mostrar notificación de error
-      return;
-    }
-
-    // Realizar el registro llamando a la función `register` del composable `useAuth`
-    await authRegister(email.value, password.value, firstName.value, lastName.value);
-
-    // Manejar el error si existe
-    if (error.value) {
-      $notyf.error(error.value); // Mostrar el mensaje de error desde el backend
-    } else {
-      $notyf.success("Registro exitoso. ¡Por favor, inicia sesión!"); // Mostrar el mensaje de éxito
-      navigateTo("/login"); // Redirigir al login después del registro exitoso
-    }
-  };
+  if (error.value) {
+    $notyf.error("Error al registrarse. Intenta nuevamente.");
+  } else {
+    $notyf.success("Registro exitoso. ¡Por favor, inicia sesión!");
+    navigateTo("/login");
+  }
+};
 </script>
 
 <template>
-  <form @submit.prevent="register">
-    <div class="mb-4">
-      <label for="firstName" class="block text-sm font-medium">First Name</label>
-      <input
-        v-model="firstName"
-        id="firstName"
-        type="text"
-        required
-        class="mt-1 block w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
-      />
-    </div>
+  <div class="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary to-secondary px-4 py-12">
+    <form @submit.prevent="handleRegister" class="form-container">
+      <h2 class="mb-6 text-center text-2xl font-bold text-white">Crear una Cuenta</h2>
 
-    <div class="mb-4">
-      <label for="lastName" class="block text-sm font-medium">Last Name</label>
-      <input
-        v-model="lastName"
-        id="lastName"
-        type="text"
-        required
-        class="mt-1 block w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
-      />
-    </div>
-
-    <div class="mb-4">
-      <label for="email" class="block text-sm font-medium">Email</label>
-      <input
-        v-model="email"
-        id="email"
-        type="email"
-        required
-        class="mt-1 block w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
-      />
-    </div>
-
-    <div class="mb-4">
-      <label for="password" class="block text-sm font-medium">Password</label>
-      <div class="relative">
-        <input
-          v-model="password"
-          :type="showPassword ? 'text' : 'password'"
-          id="password"
-          required
-          class="mt-1 block w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
-        />
-        <button
-          type="button"
-          @click="togglePasswordVisibility"
-          class="absolute inset-y-0 right-0 flex items-center px-2"
-        >
-          <Icon
-            :name="showPassword ? 'heroicons:eye-off' : 'heroicons:eye'"
-            class="h-5 w-5 text-muted-foreground"
-          />
-        </button>
+      <div class="mb-4">
+        <label class="block text-white font-medium">Nombre</label>
+        <input v-model="firstName" type="text" required class="input" />
       </div>
-    </div>
 
-    <div class="mb-4">
-      <label for="confirmPassword" class="block text-sm font-medium">Confirm Password</label>
-      <div class="relative">
-        <input
-          v-model="confirmPassword"
-          :type="showConfirmPassword ? 'text' : 'password'"
-          id="confirmPassword"
-          required
-          class="mt-1 block w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
-        />
-        <button
-          type="button"
-          @click="toggleConfirmPasswordVisibility"
-          class="absolute inset-y-0 right-0 flex items-center px-2"
-        >
-          <Icon
-            :name="showConfirmPassword ? 'heroicons:eye-off' : 'heroicons:eye'"
-            class="h-5 w-5 text-muted-foreground"
-          />
-        </button>
+      <div class="mb-4">
+        <label class="block text-white font-medium">Apellido</label>
+        <input v-model="lastName" type="text" required class="input" />
       </div>
-    </div>
 
-    <button
-      type="submit"
-      class="w-full rounded-md bg-gradient-to-r from-orange-500 to-red-500 px-4 py-2 text-white shadow-lg hover:from-orange-600 hover:to-red-600"
-    >
-      Register
-    </button>
-  </form>
+      <div class="mb-4">
+        <label class="block text-white font-medium">Email</label>
+        <input v-model="email" type="email" required class="input" />
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-white font-medium">Contraseña</label>
+        <div class="relative">
+          <input v-model="password" :type="showPassword ? 'text' : 'password'" required class="input" />
+          <button type="button" @click="togglePasswordVisibility" class="absolute inset-y-0 right-0 px-2">
+            <Icon :name="showPassword ? 'heroicons:eye-off' : 'heroicons:eye'" class="h-5 w-5 text-gray-300" />
+          </button>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-white font-medium">Confirmar Contraseña</label>
+        <div class="relative">
+          <input v-model="confirmPassword" :type="showConfirmPassword ? 'text' : 'password'" required class="input" />
+          <button type="button" @click="toggleConfirmPasswordVisibility" class="absolute inset-y-0 right-0 px-2">
+            <Icon :name="showConfirmPassword ? 'heroicons:eye-off' : 'heroicons:eye'" class="h-5 w-5 text-gray-300" />
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit">
+        Registrarse
+      </button>
+
+      <p class="mt-4 text-center text-sm text-gray-300">
+        ¿Ya tienes una cuenta?
+        <NuxtLink to="/login" class="text-white hover:underline">Inicia sesión aquí</NuxtLink>
+      </p>
+    </form>
+  </div>
 </template>
+
+<style scoped>
+/* Contenedor del formulario con fondo oscuro */
+.form-container {
+  max-width: 400px;
+  width: 100%;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Inputs personalizados */
+.input {
+  @apply block w-full rounded-md border border-gray-500 bg-gray-800 px-3 py-2 text-white shadow-sm focus:border-primary focus:ring-primary;
+}
+
+/* Botón de enviar con gradiente */
+.btn-submit {
+  @apply w-full rounded-md bg-gradient-to-b from-blue-500 to-blue-600 px-4 py-2 font-bold text-white shadow-lg transition hover:from-blue-600 hover:to-blue-700;
+}
+</style>

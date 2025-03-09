@@ -5,11 +5,11 @@ import scrollbar from "tailwind-scrollbar";
 export default <Partial<Config>>{
   darkMode: "class",
   content: ["./components/**/*.{vue,js,ts}",
-  "./layouts/**/*.vue",
-  "./pages/**/*.vue",
-  "./app.vue",
-  "./plugins/**/*.{js,ts}",
-  "./nuxt.config.{js,ts}",],
+    "./layouts/**/*.vue",
+    "./pages/**/*.vue",
+    "./app.vue",
+    "./plugins/**/*.{js,ts}",
+    "./nuxt.config.{js,ts}",],
   theme: {
     extend: {
       container: {
@@ -56,10 +56,10 @@ export default <Partial<Config>>{
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
         },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
+        // card: {
+        //   DEFAULT: "hsl(var(--card))",
+        //   foreground: "hsl(var(--card-foreground))",
+        // },
       },
     },
   },

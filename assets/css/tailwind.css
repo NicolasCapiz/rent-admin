@@ -23,9 +23,6 @@
     --foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    
-    --muted: 223 47% 11%;
-    --modal-foreground: 222.2 47.4% 11.2%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 47.4% 11.2%;
@@ -49,7 +46,18 @@
     --destructive-foreground: 210 40% 98%;
     --ring: 215 20.2% 65.1%;
     --radius: 0.5rem;
-  }
+
+    --primary-gradient: linear-gradient(90deg, hsl(210, 100%, 49%), hsl(245, 100%, 60%));
+    --primary-dark-gradient: linear-gradient(90deg, hsl(210, 100%, 40%), hsl(245, 90%, 50%));
+
+    --login-bg: 0 0% 98%;
+    --login-card: 0 0% 100%;
+    --login-text: 222.2 47.4% 11.2%;
+
+    --input-bg: 214.3 31.8% 91.4%;
+    --input-border: 214.3 31.8% 80%;
+
+    }
 
   /* 🎨 Modo oscuro */
   .dark {
@@ -64,8 +72,8 @@
     --border: 216 34% 17%;
     --input: 216 34% 17%;
 
-    --card: 224 71% 4%;
-    --card-foreground: 213 31% 91%;
+    --card: 223 47% 15%; 
+    --card-foreground: 223 31% 85%; 
 
     --primary: 210, 100%, 49%;
     --primary-foreground: 222.2 47.4% 1.2%;
@@ -75,6 +83,16 @@
 
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
+
+    --accent: 222.2 47.4% 15%;
+    --accent-foreground: 210 40% 96.1%;
+
+    --login-bg: 224 71% 4%;
+    --login-card: 223 47% 11%;
+    --login-text: 213 31% 91%;
+
+    --input-bg: 223 47% 15%;
+    --input-border: 223 31% 31%;
   }
 
   body {
@@ -116,6 +134,46 @@
 }
 
 @layer components {
+  .login-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+  }
+
+  .login-image {
+    background: var(--primary-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50%;
+    height: 100vh;
+  }
+
+  .login-card {
+    background: hsl(var(--login-card));
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 500px; /* Aumentado */
+  }
+
+  .login-title {
+    font-size: 1.75rem; /* Un poco más grande */
+    font-weight: bold;
+    color: hsl(var(--login-text));
+  }
+
+  .login-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid hsl(var(--input-border));
+    background: hsl(var(--input-bg));
+    border-radius: 6px;
+    margin-top: 8px;
+  }
+
   /* 🏷️ Dropdown */
   .dropdown-enter-active,
   .dropdown-leave-active {
@@ -238,6 +296,14 @@
   }
 
   @media (min-width: 1024px) {
+    .login-image {
+      display: none;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 100%;
+    }
     .dashboard-grid {
       grid-template-columns: repeat(4, 1fr);
     }

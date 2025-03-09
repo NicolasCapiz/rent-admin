@@ -9,96 +9,62 @@
     <div
       class="flex h-full w-full flex-col gap-5 overflow-y-auto rounded-md border bg-card scrollbar-thin scrollbar-thumb-input scrollbar-thumb-rounded-md"
     >
-      <SidebarItem :links="menu" @click="closeSidebar"/>
+      <SidebarItem :links="menu" @click="closeSidebar" />
 
       <div class="mt-auto">
-        <SidebarItem :links="bottomMenu"  />
+        <SidebarItem :links="bottomMenu" />
+        
+        <!-- Botón de Logout -->
         <Button
           icon="heroicons:arrow-left-on-rectangle"
           title="Logout"
-          v-show="isLogin"
-          @click="toggleLogout"
+          @click="handleLogout"
         />
-        <Button title="Login" v-show="!isLogin" @click="toggleLogout" />
       </div>
     </div>
   </aside>
 </template>
 
 <script setup lang="ts">
-  import { onMounted, ref } from "vue";
-  import { useState } from "#app"; // Usar el mismo estado global
-  import type { Sidebar } from "@/types/sidebar";
-  import Button from "@/components/buttons/Button.vue";
+import { onMounted } from "vue";
+import { useState, navigateTo } from "#app"; 
+import { useAuth } from "@/composables/useAuth"; // Importa la store de autenticación
+import type { Sidebar } from "@/types/sidebar";
+import Button from "@/components/buttons/Button.vue";
 
-  const isOpen = useState("isSidebarOpen", () => false); // Usar el estado global para controlar apertura
+const auth = useAuth(); // Instancia de la store de autenticación
+const isOpen = useState("isSidebarOpen", () => false); // Controla si el sidebar está abierto
 
-  const menu = ref<Sidebar[]>([
-    {
-      title: "Estadisticas",
-      icons: "heroicons-outline:chart-bar",
-      link: "/dashboards",
-    },
-    {
-      title: "Inquilinos",
-      icons: "heroicons:user-group",
-      link: "/renter",
-    },
-    {
-      title: "Locales",
-      icons: "heroicons:building-storefront",
-      link: "/location",
-    },
-    {
-      title: "Pagos",
-      icons: "heroicons:currency-dollar",
-      link: "/payment",
-    },
-    {
-      title: "Resumen de Pagos",
-      icons: "heroicons:chart-pie",
-      link: "/paymentRecord",
-    },
-    {
-      title: "Aumentos",
-      icons: "heroicons:adjustments-horizontal",
-      link: "/adjustment",
-    },
-    {
-      title: "Contratos",
-      icons: "heroicons:document-text",
-      link: "/leaseContract",
-    },
-  ]);
+const menu = [
+  { title: "Estadisticas", icons: "heroicons-outline:chart-bar", link: "/dashboards" },
+  { title: "Inquilinos", icons: "heroicons:user-group", link: "/renter" },
+  { title: "Locales", icons: "heroicons:building-storefront", link: "/location" },
+  { title: "Pagos", icons: "heroicons:currency-dollar", link: "/payment" },
+  { title: "Resumen de Pagos", icons: "heroicons:chart-pie", link: "/paymentRecord" },
+  { title: "Aumentos", icons: "heroicons:adjustments-horizontal", link: "/adjustment" },
+  { title: "Contratos", icons: "heroicons:document-text", link: "/leaseContract" },
+];
 
-  const bottomMenu = ref<Sidebar[]>([
-    {
-      title: "Settings",
-      icons: "heroicons:cog-8-tooth",
-      link: "/settings",
-    },
-    {
-      title: "Help",
-      icons: "heroicons:question-mark-circle",
-      link: "/help",
-    },
-  ]);
+const bottomMenu = [
+  { title: "Settings", icons: "heroicons:cog-8-tooth", link: "/settings" },
+  { title: "Help", icons: "heroicons:question-mark-circle", link: "/help" },
+];
 
-  const isLogin = ref(true);
+// Función para cerrar el sidebar en pantallas pequeñas
+const closeSidebar = () => {
+  if (window.innerWidth < 1024) {
+    isOpen.value = false;
+  }
+};
 
-  const toggleLogout = () => {
-    isLogin.value = !isLogin.value;
-  };
+// Función para cerrar sesión
+const handleLogout = () => {
+  auth.logout(); // Llama a la función de logout de la store
+  closeSidebar(); // Cierra el sidebar si está abierto
+};
 
-  const closeSidebar = () => {
-    if (process.client) {
-      if (window.innerWidth < 1024) {
-        isOpen.value = false;
-      }
-    }
-  };
-
-  onMounted(() => {
+// Cierra el sidebar al montar si es pantalla pequeña
+onMounted(() => {
   if (window.innerWidth < 1024) {
     isOpen.value = false;
   }

@@ -72,45 +72,32 @@ const openContractPdf = async (row: BodyTable) => {
     const response = await fetch(url, {
       method: "GET",
       headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token}`, // Elimina "Content-Type"
       },
     });
+
     if (!response.ok) {
       throw new Error("Error al obtener el PDF");
     }
+
+    // Verifica el tipo de contenido
+    const contentType = response.headers.get("Content-Type");
+    if (!contentType || !contentType.includes("pdf")) {
+      throw new Error("La respuesta no es un PDF válido.");
+    }
+
+    // Convierte la respuesta en un blob
     const blob = await response.blob();
     const blobUrl = URL.createObjectURL(blob);
-    const customTitle = `Contrato ${row.location.name}`; // O el título que prefieras
 
-    // Abrir una nueva ventana en blanco
-    const newWindow = window.open("", "_blank");
-    if (!newWindow) {
-      throw new Error("No se pudo abrir una nueva ventana.");
-    }
-    // Escribir el HTML en la nueva ventana, incluyendo el título y un iframe que muestre el PDF
-    newWindow.document.write(`
-      <!DOCTYPE html>
-      <html lang="es">
-      <head>
-        <meta charset="UTF-8">
-        <title>${customTitle}</title>
-        <style>
-          html, body { margin: 0; padding: 0; height: 100%; }
-          iframe { width: 100%; height: 100%; border: none; }
-        </style>
-      </head>
-      <body>
-        <iframe src="${blobUrl}"></iframe>
-      </body>
-      </html>
-    `);
-    newWindow.document.close();
+    // Abrir en una nueva pestaña
+    window.open(blobUrl, "_blank");
   } catch (error) {
     console.error("Error al abrir el PDF:", error);
     $notyf.error("No se pudo abrir el PDF.");
   }
 };
+
 
 
 
@@ -183,25 +170,40 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="lease-contracts-container flex h-full w-full flex-col items-center justify-center p-4">
-    <Table 
-      model="leaseContracts" 
-      title="Contratos de Arrendamiento" 
-      :head="head" 
-      :content="contracts" 
-      :actions="actions"
-      :reload="reloadTable" 
-      class="w-full" 
-      @create-lease-contract="openCreateLeaseContractModal"
-      @finish-lease-contract="finalizeContract"
-      @icon-click="openContractPdf" 
-      @selected="handleRowSelection" />
+  <div class="lease-contracts-container flex h-full w-full flex-col items-center justify-start overflow-hidden">
+    <!-- Contenedor de la tabla con scroll interno -->
+    <div class="table-wrapper w-full h-full overflow-hidden">
+      <Table 
+        model="leaseContracts" 
+        title="Contratos de Arrendamiento" 
+        :head="head" 
+        :content="contracts" 
+        :actions="actions"
+        :reload="reloadTable" 
+        class="w-full h-full overflow-auto" 
+        @create-lease-contract="openCreateLeaseContractModal"
+        @finish-lease-contract="finalizeContract"
+        @icon-click="openContractPdf" 
+        @selected="handleRowSelection" />
+    </div>
+
     <!-- Modal para Crear Contrato -->
-    <CreateLeaseContractModal v-show="isCreateLeaseContractModalOpen" @close="closeCreateLeaseContractModal"
+    <CreateLeaseContractModal 
+      v-show="isCreateLeaseContractModalOpen" 
+      @close="closeCreateLeaseContractModal"
       @create="createLeaseContract" />
   </div>
 </template>
 
+
 <style scoped>
-/* Puedes agregar estilos adicionales para este componente si lo requieres */
+.lease-contracts-container {
+  height: 100vh; /* O ajusta según el layout */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  overflow: hidden; /* Evita que la página tenga scroll */
+}
+
 </style>

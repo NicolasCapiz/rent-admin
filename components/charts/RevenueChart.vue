@@ -13,100 +13,65 @@ import {
 } from "chart.js";
 import { dashboardService } from "@/services/dashboardService";
 
-// Define los tipos para Chart.js
-interface ChartDataset {
-  label: string;
-  data: number[];
-  backgroundColor: string;
-  borderColor: string;
-  borderWidth: number;
-  pointBackgroundColor: string;
-  pointBorderColor: string;
-  pointHoverBackgroundColor: string;
-  pointHoverBorderColor: string;
-}
-
-interface ChartData {
-  labels: string[];
-  datasets: ChartDataset[];
-}
-
 ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement);
 
-// Inyectamos los filtros definidos en el Dashboard principal
 const selectedYear = inject("selectedYear");
 const selectedMonth = inject("selectedMonth");
 const selectedLocal = inject("selectedLocal");
 
-// Declaramos chartData con la tipación adecuada
-const chartData = ref<ChartData>({ labels: [], datasets: [] });
-
+const chartData = ref({ labels: [], datasets: [] });
 const chartOptions = ref({
   responsive: true,
   maintainAspectRatio: false,
   scales: {
-    y: {
-      beginAtZero: true,
-    },
-    x: {
-      title: {
-        display: true,
-        text: "Dias",
-      },
-    },
+    y: { beginAtZero: true },
+    x: { title: { display: true, text: "Días" } },
   },
 });
 
 const fetchData = async () => {
   try {
-    // Construir los filtros a partir de los valores inyectados
     const filters = {
-      year: selectedYear ? selectedYear.value : new Date().getFullYear(),
-      month: selectedMonth ? selectedMonth.value : new Date().getMonth() + 1,
-      local: selectedLocal ? selectedLocal.value : "0",
+      year: selectedYear?.value || new Date().getFullYear(),
+      month: selectedMonth?.value || new Date().getMonth() + 1,
+      local: selectedLocal?.value || "0",
     };
+
     const data = await dashboardService.getDailyRevenue(filters);
-    console.log("📊 Datos recibidos:", data);
-    // Si la respuesta tiene "days" y "revenue", transformamos el objeto:
+
     if (data && data.days && data.revenue) {
       chartData.value = {
-        labels: data.days, // Ejemplo: ["1", "2", ..., "31"]
+        labels: data.days,
         datasets: [
           {
             label: "Ingresos Diarios",
-            data: data.revenue, // Por ejemplo: [0, 0, ..., 0] o los ingresos correspondientes
+            data: data.revenue,
             backgroundColor: "rgba(75, 192, 192, 0.2)",
             borderColor: "rgba(75, 192, 192, 1)",
             borderWidth: 2,
-            pointBackgroundColor: "rgba(75, 192, 192, 1)",
-            pointBorderColor: "#fff",
-            pointHoverBackgroundColor: "#fff",
-            pointHoverBorderColor: "rgba(75, 192, 192, 1)",
+            pointBackgroundColor: "#fff",
+            pointBorderColor: "rgba(75,192,192,1)",
+            pointHoverBackgroundColor: "rgba(75,192,192,1)",
+            pointHoverBorderColor: "#fff",
           },
         ],
       };
     } else {
-      console.error("❌ Datos no válidos:", data);
+      console.error("Datos inválidos:", data);
     }
   } catch (error) {
-    console.error("⚠️ Error al obtener datos del gráfico:", error);
+    console.error("Error al obtener datos:", error);
   }
 };
 
-onMounted(fetchData);
 
-// Observar cambios en los filtros para actualizar el gráfico
-if (selectedYear && selectedMonth && selectedLocal) {
-  watch([selectedYear, selectedMonth, selectedLocal], async () => {
-    await fetchData();
-  });
-}
+onMounted(fetchData);
+watch([selectedYear, selectedMonth, selectedLocal], fetchData);
 </script>
 
 <template>
   <div class="chart-container">
-    <!-- <h3>📊 Ingreso Mensual</h3> -->
-    <Line v-if="chartData.labels.length > 0" :data="chartData" :options="chartOptions" />
+    <Line v-if="chartData.labels.length" :data="chartData" :options="chartOptions" />
     <p v-else>Cargando datos...</p>
   </div>
 </template>
@@ -116,7 +81,6 @@ if (selectedYear && selectedMonth && selectedLocal) {
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
 }

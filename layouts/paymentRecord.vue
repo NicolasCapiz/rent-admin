@@ -53,18 +53,33 @@ const handleRowSelection = async (row: BodyTable) => {
 </script>
 
 <template>
-  <div class="payment-container flex h-full w-full flex-col items-center justify-center">
-    <Table
-      model="payments"
-      title="Pagos"
-      :head="head"
-      :content="payments"
-      :actions="actions"
-      :reload="reloadTable"
-      class="w-full"
-      @create-payment="openCreatePaymentModal"
-      @selected="handleRowSelection"
-    />
+  <div class="payment-container flex h-full w-full flex-col overflow-hidden">
+    <!-- Título y acciones -->
+    <div class="header-container flex justify-between w-full p-4">
+      <h2 class="text-lg font-bold">Pagos</h2>
+      <button 
+        v-for="action in actions" 
+        :key="action.modal" 
+        @click="$emit(`${action.operation}-${action.modal}`)"
+        class="bg-blue-500 text-white px-4 py-2 rounded">
+        {{ action.title }}
+      </button>
+    </div>
+
+    <!-- Contenedor de la tabla con scroll interno -->
+    <div class="table-wrapper flex-grow w-full overflow-hidden">
+      <Table
+        model="payments"
+        :head="head"
+        :content="payments"
+        :actions="actions"
+        :reload="reloadTable"
+        class="w-full h-full overflow-auto"
+        @create-payment="openCreatePaymentModal"
+        @selected="handleRowSelection"
+      />
+    </div>
+
     <!-- Modal para Crear Pago -->
     <CreatePaymentModal
       v-show="isCreatePaymentModalOpen"
@@ -74,5 +89,31 @@ const handleRowSelection = async (row: BodyTable) => {
   </div>
 </template>
 
+
 <style scoped>
+.payment-container {
+  height: 100vh; /* Toda la altura disponible */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Evita scroll en la página */
+}
+
+.header-container {
+  flex-shrink: 0; /* Fija el header sin que afecte la tabla */
+}
+
+.table-wrapper {
+  flex-grow: 1;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+}
+
+.table-wrapper .table-container {
+  height: 100%;
+  width: 100%;
+  overflow-y: auto; /* SOLO la tabla tendrá scroll */
+  border-top: 1px solid hsl(var(--border)); /* Opcional: mejorar visual */
+}
+
 </style>

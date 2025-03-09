@@ -20,7 +20,7 @@
           class="h-7 w-7 object-contain"
         />
         <!-- Page title -->
-        <NuxtLink class="text-xl font-bold" to="/">Rent-Management</NuxtLink>
+        <NuxtLink class="hidden lg:block text-xl font-bold" to="/">Rent-Management</NuxtLink>
       </div>
 
       <div class="flex items-center gap-5">
@@ -32,39 +32,36 @@
           <Icon name="heroicons:sun" class="h-5 w-5" />
         </button>
 
-        <!-- Profile Dropdown menu -->
+        <!-- Profile Dropdown menu con iniciales -->
         <HMenu v-show="!isLoginPage" as="div" class="relative">
           <HMenuButton
-            class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border bg-background"
+            class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border"
+            :style="{ backgroundColor: logoBackgroundColor }"
           >
-            <img
-              src="https://randomuser.me/api/portraits/med/men/75.jpg"
-              alt="Logged in user"
-              class="h-full w-full"
-            />
+            <span class="text-white font-semibold text-sm">
+              {{ userInitials }}
+            </span>
           </HMenuButton>
           <TransitionScale :scale="0.8" origin="top right">
             <HMenuItems
               class="absolute right-0 z-10 mt-3 w-48 rounded-md border bg-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <div class="border-b px-3 py-1.5 text-sm">
-                <p class="font-semibold">Hello John</p>
-                <a href="mailto:johndoe@test.com" class="leading-none text-muted-foreground"
-                  >johndoe@test.com</a
-                >
+                <p class="font-semibold">{{ fullName }}</p>
+                <a :href="'mailto:' + user?.email" class="leading-none text-muted-foreground">
+                  {{ user?.email || "email@example.com" }}
+                </a>
               </div>
               <div class="p-1">
-                <template v-for="(p, i) in profileMenuOptions" :key="i">
-                  <HMenuItem v-show="!p.divider" v-slot="{ active }">
-                    <button
-                      :class="[active && 'bg-muted']"
-                      class="inline-flex w-full items-center rounded-md p-2 text-sm font-medium"
-                    >
-                      {{ p.title }}
-                    </button>
-                  </HMenuItem>
-                  <hr v-show="p.divider" class="my-1" />
-                </template>
+                <HMenuItem v-slot="{ active }">
+                  <button
+                    @click="logout"
+                    :class="[active && 'bg-muted']"
+                    class="inline-flex w-full items-center rounded-md p-2 text-sm font-medium text-red-500"
+                  >
+                    Logout
+                  </button>
+                </HMenuItem>
               </div>
             </HMenuItems>
           </TransitionScale>
@@ -75,31 +72,50 @@
 </template>
 
 <script setup lang="ts">
-  import { useState,useRoute } from "#app";
+import { useState, useRoute, navigateTo } from "#app";
+import { computed, onMounted } from "vue";
+import { useAuth } from "@/composables/useAuth"; // Importa la store de autenticación
 
-  const route = useRoute();
-  const isLoginPage = route.path === "/login" || route.path === "/register";
+const route = useRoute();
+const isLoginPage = route.path === "/login" || route.path === "/register";
 
-  // Estado global del sidebar para manejarlo en móvil
-  const isOpen = useState("isSidebarOpen", () => false);
+// Estado global del sidebar para manejarlo en móvil
+const isOpen = useState("isSidebarOpen", () => false);
+const toggleSidebar = () => {
+  isOpen.value = !isOpen.value;
+};
 
-  const toggleSidebar = () => {
-    isOpen.value = !isOpen.value;
-  };
+// Manejo de tema
+const mode = useColorMode();
+const toggleTheme = () => {
+  mode.value = mode.value === "dark" ? "light" : "dark";
+};
 
-  // Manejo de tema
-  const mode = useColorMode();
-  const toggleTheme = () => {
-    mode.value = mode.value === "dark" ? "light" : "dark";
-  };
+// Obtener usuario autenticado desde la store
+const auth = useAuth();
+onMounted(() => {
+  auth.getUserDetails(); // Asegura que el usuario se cargue
+});
 
-  const profileMenuOptions = [
-    { title: "Profile" },
-    { title: "Billing" },
-    { title: "Settings" },
-    { title: "Team members" },
-    { title: "Sales" },
-    { divider: true },
-    { title: "Logout" },
-  ];
+// Computed para obtener las iniciales del usuario
+const userInitials = computed(() => {
+  if (!auth.user?.firstName || !auth.user?.lastName) return "U";
+  return (
+    auth.user.firstName.charAt(0).toUpperCase() +
+    auth.user.lastName.charAt(0).toUpperCase()
+  );
+});
+
+// Computed para el nombre completo del usuario
+const fullName = computed(() => {
+  return auth.user ? `${auth.user.firstName} ${auth.user.lastName}` : "Usuario";
+});
+
+// Color de fondo del avatar (puedes cambiarlo si quieres algo dinámico)
+const logoBackgroundColor = "#2563eb"; // Azul similar al icono del título
+
+// Función para cerrar sesión
+const logout = () => {
+  auth.logout();
+};
 </script>

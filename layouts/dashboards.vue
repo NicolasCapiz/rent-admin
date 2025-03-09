@@ -31,11 +31,11 @@
     <!-- 📊 Gráficos -->
     <div class="grid-container">
       <div class="card wide"><RevenueChart /></div>
-      <div class="card"><PriceAdjustmentChart /></div>
-      <div class="card"><PaymentStatusChart /></div>
-      <div class="card"><OccupancyChart /></div>
-      <div class="card"><RenterDistribution /></div>
-      <div class="card"><RentComparisonChart /></div>
+      <div class="card medium"><PriceAdjustmentChart /></div>
+      <div class="card medium"><PaymentStatusChart /></div>
+      <!-- <div class="card"><OccupancyChart /></div> -->
+      <!-- <div class="card"><RenterDistribution /></div> -->
+      <!-- <div class="card"><RentComparisonChart /></div> -->
     </div>
   </div>
 </template>
@@ -175,7 +175,10 @@ watch([selectedYear, selectedMonth, selectedLocal], async () => {
 }
 
 .card.wide {
-  grid-column: span 2;
+  grid-column: span 3;
+}
+.card.medium {
+  grid-column: span 1;
 }
 
 .card {

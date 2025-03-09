@@ -1,165 +1,64 @@
 <template>
   <div>
-    <!-- Header -->
     <FullHeader />
 
     <!-- Sección Inicio -->
-    <section
-      id="inicio"
-      class="flex min-h-screen items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
-    >
+    <section id="inicio" class="hero-section">
       <div class="container mx-auto flex flex-col items-center justify-between lg:flex-row">
-        <!-- Texto Principal -->
-        <div class="space-y-5 text-center lg:w-1/2 lg:text-left">
-          <h1 class="text-5xl font-bold">
-            Gestiona tus Locales y Alquileres de manera Fácil y Eficiente
-          </h1>
+        <div class="hero-text">
+          <h1 class="text-5xl font-bold">Gestiona tus Locales y Alquileres Fácilmente</h1>
           <p class="text-xl">
-            Administra contratos, incrementos de alquileres y locales de forma automatizada con
-            nuestra plataforma.
+            Administra contratos, incrementos de alquileres y locales automáticamente con Rent-Management.
           </p>
-          <button
-            class="rounded-md bg-white px-6 py-3 font-bold text-indigo-600 hover:bg-indigo-100"
-            @click="scrollToSection('services')"
-          >
-            Empieza Ahora
-          </button>
+          <button class="btn-primary" @click="scrollToSection('services')">Empieza Ahora</button>
         </div>
-
-        <!-- Imagen 3D a la Derecha -->
-        <div class="mt-8 lg:mt-0 lg:w-1/2">
-          <img
-            src="../../assets/images/person-working-3d.png"
-            alt="Persona trabajando"
-            class="h-auto w-full object-cover"
-          />
+        <div class="hero-image">
+          <img src="../../assets/images/person-working-3d.png" alt="Persona trabajando" />
         </div>
       </div>
     </section>
 
     <!-- Sección Servicios -->
-    <section id="services" class="flex min-h-screen flex-col justify-center bg-gray-100 py-20">
+    <section id="services" class="section-bg">
       <div class="container mx-auto">
-        <h2 class="mb-12 text-center text-4xl font-bold">Servicios que Ofrecemos</h2>
+        <h2 class="section-title">Servicios que Ofrecemos</h2>
         <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          <!-- Card 1 -->
-          <div
-            class="h-70 flex flex-col items-center justify-center rounded-lg border border-gray-300 bg-white p-8 shadow-lg hover:border-gray-400"
-          >
-            <i class="fas fa-file-alt fa-3x mb-4 text-indigo-600"></i>
-            <h3 class="mb-4 text-center text-xl font-bold">Gestión de Contratos</h3>
-            <p class="text-center text-gray-600">
-              Mantén tus contratos siempre organizados. Recibe notificaciones antes de que caduquen
-              y renueva de forma automática.
-            </p>
-          </div>
-
-          <!-- Card 2 -->
-          <div
-            class="h-70 flex flex-col items-center justify-center rounded-lg border border-gray-300 bg-white p-8 shadow-lg hover:border-gray-400"
-          >
-            <i class="fas fa-coins fa-3x mb-4 text-indigo-600"></i>
-            <h3 class="mb-4 text-center text-xl font-bold">Aumentos Programados</h3>
-            <p class="text-center text-gray-600">
-              Configura aumentos automáticos por porcentaje o tiempo, y olvídate de los cálculos
-              manuales.
-            </p>
-          </div>
-
-          <!-- Card 3 -->
-          <div
-            class="h-70 flex flex-col items-center justify-center rounded-lg border border-gray-300 bg-white p-8 shadow-lg hover:border-gray-400"
-          >
-            <i class="fas fa-store-alt fa-3x mb-4 text-indigo-600"></i>
-            <h3 class="mb-4 text-center text-xl font-bold">Control de Locales</h3>
-            <p class="text-center text-gray-600">
-              Administra varios locales desde un solo lugar, visualiza su estado y la información
-              relevante en tiempo real.
-            </p>
-          </div>
-
-          <!-- Card 4 -->
-          <div
-            class="h-70 flex flex-col items-center justify-center rounded-lg border border-gray-300 bg-white p-8 shadow-lg hover:border-gray-400"
-          >
-            <i class="fas fa-calendar-alt fa-3x mb-4 text-indigo-600"></i>
-            <h3 class="mb-4 text-center text-xl font-bold">Programación de Pagos</h3>
-            <p class="text-center text-gray-600">
-              Automatiza los pagos de alquileres con recordatorios y configuraciones programadas.
-            </p>
-          </div>
-
-          <!-- Card 5 -->
-          <div
-            class="h-70 flex flex-col items-center justify-center rounded-lg border border-gray-300 bg-white p-8 shadow-lg hover:border-gray-400"
-          >
-            <i class="fas fa-bell fa-3x mb-4 text-indigo-600"></i>
-            <h3 class="mb-4 text-center text-xl font-bold">Notificaciones y Alertas</h3>
-            <p class="text-center text-gray-600">
-              Recibe alertas antes de que los contratos finalicen o cuando se realicen pagos
-              pendientes.
-            </p>
-          </div>
-
-          <!-- Card 6 -->
-          <div
-            class="h-70 flex flex-col items-center justify-center rounded-lg border border-gray-300 bg-white p-8 shadow-lg hover:border-gray-400"
-          >
-            <i class="fas fa-chart-bar fa-3x mb-4 text-indigo-600"></i>
-            <h3 class="mb-4 text-center text-xl font-bold">Reportes Personalizados</h3>
-            <p class="text-center text-gray-600">
-              Genera reportes detallados sobre el estado de los contratos, pagos y rendimiento de
-              los locales.
-            </p>
-          </div>
+          <ServiceCard icon="fa-solid fa-file-alt" title="Gestión de Contratos" description="Organiza contratos y recibe alertas antes del vencimiento." />
+          <ServiceCard icon="fa-solid fa-coins" title="Aumentos Programados" description="Automatiza incrementos de alquiler, sin cálculos manuales." />
+          <ServiceCard icon="fa-solid fa-store" title="Control de Locales" description="Información en tiempo real sobre todos tus inmuebles." />
+          <ServiceCard icon="fa-solid fa-calendar-alt" title="Programación de Pagos" description="Recordatorios automáticos y programación de cobros." />
+          <ServiceCard icon="fa-solid fa-bell" title="Notificaciones y Alertas" description="Alertas sobre contratos próximos a vencer." />
+          <ServiceCard icon="fa-solid fa-chart-bar" title="Reportes Personalizados" description="Reportes detallados de contratos y pagos." />
         </div>
       </div>
     </section>
 
     <!-- Sección Regístrate -->
-    <section
-      id="about"
-      class="flex min-h-screen flex-col justify-center bg-gradient-to-r from-purple-500 to-indigo-500 py-20 text-white"
-    >
-      <div class="container mx-auto text-center">
-        <h2 class="mb-12 text-4xl font-bold">Regístrate y comienza a mejorar tu gestión</h2>
-        <div
-          class="flex flex-col items-center justify-center space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0"
-        >
-          <div class="lg:w-1/2">
-            <p class="text-lg">
-              Nuestra aplicación está diseñada para optimizar la gestión de locales y alquileres,
-              ofreciendo soluciones automatizadas que ahorran tiempo y mejoran la precisión. Con
-              ella, puedes gestionar contratos, programar incrementos de alquileres, administrar
-              múltiples locales y generar reportes detallados de manera sencilla.
-            </p>
-            <p class="mt-6 text-lg">
-              Si eres propietario de varios inmuebles o un administrador de propiedades, nuestra
-              plataforma te proporcionará todas las herramientas que necesitas para mantenerte
-              organizado y maximizar la eficiencia en tus operaciones diarias.
-            </p>
-            <p class="mt-6 text-lg">
-              Con nuestras funciones avanzadas de automatización y alertas, te asegurarás de que
-              ningún contrato se quede sin renovar y ningún pago sin registrar.
-            </p>
+    <section id="about" class="cta-section min-h-screen">
+      <div class="container mx-auto flex flex-col justify-center h-full text-center">
+        <h2 class="section-title">Regístrate y mejora tu gestión</h2>
+        <div class="cta-content">
+          <p class="text-xl">
+            Automatiza y optimiza la gestión de tus alquileres con Rent-Management. Ahorrarás tiempo y recursos, reduciendo errores administrativos.
+          </p>
+          <div class="mt-10 grid gap-6 lg:grid-cols-3">
+            <div class="feature-item">
+              <i class="fa-solid fa-clock text-4xl"></i>
+              <h3 class="mt-4 font-semibold">Automatización Completa</h3>
+              <p>Ahorra tiempo eliminando tareas repetitivas.</p>
+            </div>
+            <div class="feature-item">
+              <i class="fa-solid fa-shield-alt text-4xl"></i>
+              <h3 class="mt-4 font-semibold">Seguridad y Privacidad</h3>
+              <p>Datos seguros y confidenciales en todo momento.</p>
+            </div>
+            <div class="feature-item">
+              <i class="fa-solid fa-users text-4xl"></i>
+              <h3 class="mt-4 font-semibold">Gestión Centralizada</h3>
+              <p>Control total sobre múltiples propiedades fácilmente.</p>
+            </div>
           </div>
-          <div class="lg:w-1/2">
-            <img
-              src="../../assets/images/about-image.png"
-              alt="Sobre Nosotros"
-              class="h-auto w-full object-cover"
-            />
-          </div>
-        </div>
-
-        <!-- Botón "Registrarse Ahora" -->
-        <div class="mt-16">
-          <button
-            class="rounded-md bg-indigo-600 px-6 py-3 font-bold text-white hover:bg-indigo-500"
-            @click="scrollToSection('login')"
-          >
-            Registrarse Ahora
-          </button>
+          <button class="btn-primary mt-12" @click="scrollToSection('login')">Registrarse Ahora</button>
         </div>
       </div>
     </section>
@@ -167,17 +66,45 @@
 </template>
 
 <script setup lang="ts">
-  import FullHeader from "./header.vue";
+import FullHeader from "./header.vue";
+import ServiceCard from "@/components/serviceCard.vue";
 
-  // Función para hacer scroll a las secciones
-  const scrollToSection = (sectionId: string) => {
-    const section = document.getElementById(sectionId);
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+const scrollToSection = (sectionId: string) => {
+  const section = document.getElementById(sectionId);
+  section?.scrollIntoView({ behavior: "smooth" });
+};
 </script>
 
 <style scoped>
-  /* Aquí no se necesitan estilos adicionales, ya que Tailwind gestiona el espaciado y el diseño */
+.hero-section {
+  @apply flex min-h-screen items-center justify-center bg-gradient-to-r from-primary to-secondary text-white;
+}
+.hero-text {
+  @apply space-y-5 text-center lg:w-1/2 lg:text-left;
+}
+.hero-image img {
+  @apply h-auto w-full object-cover;
+}
+
+.section-bg {
+  @apply flex min-h-screen flex-col justify-center bg-muted py-20;
+}
+.section-title {
+  @apply mb-12 text-4xl font-bold text-center text-foreground;
+}
+
+.cta-section {
+  @apply flex flex-col justify-center bg-gradient-to-r from-secondary to-primary text-white py-20;
+}
+.cta-content {
+  @apply flex flex-col items-center space-y-6;
+}
+
+.feature-item {
+  @apply flex flex-col items-center gap-2;
+}
+
+.btn-primary {
+  @apply rounded-md bg-gradient-to-r from-primary to-secondary px-6 py-3 font-bold text-white shadow-lg hover:opacity-90;
+}
 </style>
