@@ -112,10 +112,9 @@ const fetchData = async () => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      baseURL: config.public.apiBase,
+      baseURL: useRuntimeConfig().public.apiBase,
       query,
     });
-
     if (Array.isArray(response)) {
       tableContent.value = [...response];
       originalContent.value = JSON.parse(JSON.stringify(tableContent.value));
@@ -189,7 +188,7 @@ const apply = async () => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      baseURL: config.public.apiBase,
+      baseURL: useRuntimeConfig().public.apiBase,
       body: updateRows,
     });
 

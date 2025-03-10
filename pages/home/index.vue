@@ -66,6 +66,7 @@
 </template>
 
 <script setup lang="ts">
+import { useNuxtApp } from "nuxt/app";
 import FullHeader from "./header.vue";
 import ServiceCard from "@/components/serviceCard.vue";
 
@@ -73,6 +74,7 @@ const scrollToSection = (sectionId: string) => {
   const section = document.getElementById(sectionId);
   section?.scrollIntoView({ behavior: "smooth" });
 };
+
 </script>
 
 <style scoped>

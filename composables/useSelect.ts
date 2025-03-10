@@ -1,41 +1,54 @@
+import { defineStore } from "pinia";
+import { useRuntimeConfig } from "nuxt/app";
+
 interface Option {
   id: string;
   name: string;
 }
 
 interface State {
-  options: { [key: string]: Option[] };
+  options: Record<string, Option[]>;
   selected: string | null;
+  loading: boolean;
+  error: string | null;
 }
-
-import { defineStore } from "pinia";
-import { useRuntimeConfig } from "nuxt/app";
-
-const config = useRuntimeConfig();
-const baseURL = config.public.apiBase;
 
 export const useSelect = defineStore("select", {
   state: (): State => ({
     options: {},
     selected: null,
+    loading: false,
+    error: null,
   }),
 
   actions: {
-    async fetchOptions(model: string, isLoading: boolean, token: string) {
-      const res: any = await fetch(`${baseURL}/${model}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    async fetchOptions(model: string, token: string) {
+      // Obtén la URL base en el contexto de la acción:
+      const apiBaseURL = useRuntimeConfig().public.apiBase;
+      this.loading = true;
+      this.error = null;
 
-      const data = await res.json();
+      try {
+        const res = await fetch(`${apiBaseURL}/${model}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      this.options[model] = data;
-      isLoading = true;
-      // console.log("lso optiomns", this.options);
-      // console.log("lso optiomns", this.options[model]);
+        if (!res.ok) {
+          throw new Error(`Error fetching options: ${res.statusText}`);
+        }
+
+        const data: Option[] = await res.json();
+        this.options[model] = data;
+      } catch (error: any) {
+        console.error("Error in fetchOptions:", error);
+        this.error = error.message || "Unknown error";
+      } finally {
+        this.loading = false;
+      }
     },
   },
 });

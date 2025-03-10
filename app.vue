@@ -41,6 +41,12 @@
   const valuePathNeutral = computed(() => {
     return route.path == "/home" || route.path == "/login" || route.path == "/register";
   });
+
+
+  const nuxtApp = useNuxtApp();
+  console.log(nuxtApp.$config);
+
+
 </script>
 
 <template>
