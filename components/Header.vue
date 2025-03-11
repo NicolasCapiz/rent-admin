@@ -48,8 +48,8 @@
             >
               <div class="border-b px-3 py-1.5 text-sm">
                 <p class="font-semibold">{{ fullName }}</p>
-                <a :href="'mailto:' + user?.email" class="leading-none text-muted-foreground">
-                  {{ user?.email || "email@example.com" }}
+                <a :href="'mailto:' + auth.user?.email" class="leading-none text-muted-foreground">
+                  {{ auth.user?.email || "email@example.com" }}
                 </a>
               </div>
               <div class="p-1">
@@ -59,7 +59,7 @@
                     :class="[active && 'bg-muted']"
                     class="inline-flex w-full items-center rounded-md p-2 text-sm font-medium text-red-500"
                   >
-                    Logout
+                    Cerrar Sesion
                   </button>
                 </HMenuItem>
               </div>

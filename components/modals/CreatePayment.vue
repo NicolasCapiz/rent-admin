@@ -114,7 +114,7 @@ const submitForm = async () => {
     $notyf.success("Pago registrado correctamente.");
   } catch (err) {
     console.error("Error al registrar pago:", err);
-    $notyf.error("Error al procesar el pago.");
+    err?.data?.message ? $notyf.error(err.data.message) : $notyf.error("Error al procesar el pago.");
   }
 };
 

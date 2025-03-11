@@ -1,31 +1,46 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useAuth } from "@/composables/useAuth";
 import { useNuxtApp } from "#app";
+import { userService } from "@/services/userService";
 
 const auth = useAuth();
 const userEmail = auth.user?.email || "Sin email registrado";
 const { $notyf } = useNuxtApp();
 
 const notificationSettings = ref({
-  priceIncrease: false,
-  newEntityCreated: false,
-  contractTerminated: false,
-  billingSummary: "none",
-  paymentReminders: false,
-  contractExpiring: false,
-  paymentReceived: false,
+  notifyPriceIncrease: false,
+  notifyContractEnded: false,
+  notifyBillingSummary: "none",
+  notifyPaymentReminder: false,
+  notifyContractExpiring: false,
 });
 
-const saveSettings = () => {
-  $notyf.success("Preferencias de notificación guardadas con éxito.");
+const loadSettings = async () => {
+  try {
+    notificationSettings.value = await userService.getNotificationSettings();
+  } catch (error) {
+    console.error("❌ Error al cargar preferencias:", error);
+  }
 };
+
+const saveSettings = async () => {
+  try {
+    await userService.updateNotificationSettings(notificationSettings.value);
+    $notyf.success("Preferencias guardadas con éxito.");
+  } catch (error) {
+    console.error("❌ Error al guardar preferencias:", error);
+    $notyf.error("Error al guardar preferencias.");
+  }
+};
+
+onMounted(loadSettings);
 </script>
 
 <template>
   <div class="settings-container">
     <h1 class="title">Configuración de Notificaciones</h1>
-    <p class="subtitle">Elige qué notificaciones quieres recibir por email.</p>
+    <p class="subtitle">Elige qué notificaciones deseas recibir por email.</p>
 
     <div class="card">
       <h2 class="section-title">📩 Preferencias de Email</h2>
@@ -35,57 +50,35 @@ const saveSettings = () => {
         <span class="email">{{ userEmail }}</span>
       </div>
 
-      <label class="form-group">
-        <input type="checkbox" v-model="notificationSettings.priceIncrease" class="checkbox" />
-        Notificarme cuando se realice un aumento de precio
-      </label>
+      <div class="form-group">
+        <span class="label">Notificarme cuando se realice un aumento de precio</span>
+        <input type="checkbox" v-model="notificationSettings.notifyPriceIncrease" class="checkbox" />
+      </div>
 
-      <label class="form-group">
-        <input type="checkbox" v-model="notificationSettings.newEntityCreated" class="checkbox" />
-        Notificarme cuando se cree un nuevo contrato, inquilino o local
-      </label>
-
-      <label class="form-group">
-        <input type="checkbox" v-model="notificationSettings.contractTerminated" class="checkbox" />
-        Notificarme cuando finalice un contrato
-      </label>
+      <div class="form-group">
+        <span class="label">Notificarme cuando finalice un contrato</span>
+        <input type="checkbox" v-model="notificationSettings.notifyContractEnded" class="checkbox" />
+      </div>
 
       <div class="form-group">
         <span class="label">Resumen de facturación:</span>
         <div class="radio-group">
-          <label>
-            <input type="radio" v-model="notificationSettings.billingSummary" value="daily" class="radio" />
-            Diario
-          </label>
-          <label>
-            <input type="radio" v-model="notificationSettings.billingSummary" value="weekly" class="radio" />
-            Semanal
-          </label>
-          <label>
-            <input type="radio" v-model="notificationSettings.billingSummary" value="monthly" class="radio" />
-            Mensual
-          </label>
-          <label>
-            <input type="radio" v-model="notificationSettings.billingSummary" value="none" class="radio" />
-            No recibir
-          </label>
+          <label><input type="radio" v-model="notificationSettings.notifyBillingSummary" value="daily" class="radio" /> Diario</label>
+          <label><input type="radio" v-model="notificationSettings.notifyBillingSummary" value="weekly" class="radio" /> Semanal</label>
+          <label><input type="radio" v-model="notificationSettings.notifyBillingSummary" value="monthly" class="radio" /> Mensual</label>
+          <label><input type="radio" v-model="notificationSettings.notifyBillingSummary" value="none" class="radio" /> No recibir</label>
         </div>
       </div>
 
-      <label class="form-group">
-        <input type="checkbox" v-model="notificationSettings.paymentReminders" class="checkbox" />
-        Recibir recordatorios de pagos pendientes
-      </label>
+      <div class="form-group">
+        <span class="label">Recibir recordatorios de pagos pendientes</span>
+        <input type="checkbox" v-model="notificationSettings.notifyPaymentReminder" class="checkbox" />
+      </div>
 
-      <label class="form-group">
-        <input type="checkbox" v-model="notificationSettings.contractExpiring" class="checkbox" />
-        Recibir alerta cuando un contrato esté próximo a vencer
-      </label>
-
-      <label class="form-group">
-        <input type="checkbox" v-model="notificationSettings.paymentReceived" class="checkbox" />
-        Recibir notificación cuando se registre un pago
-      </label>
+      <div class="form-group">
+        <span class="label">Recibir alerta cuando un contrato esté próximo a vencer</span>
+        <input type="checkbox" v-model="notificationSettings.notifyContractExpiring" class="checkbox" />
+      </div>
 
       <button @click="saveSettings" class="btn-primary">Guardar Preferencias</button>
     </div>
@@ -135,10 +128,10 @@ const saveSettings = () => {
 /* Sección de email */
 .form-group {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
+  gap: 10px;
 }
 
 .label {

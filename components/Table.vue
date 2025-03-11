@@ -168,19 +168,27 @@ const toggleDelete = (row: BodyTable) => {
   if (row.isNew) {
     tableContent.value = tableContent.value.filter((r) => r !== row);
   } else {
-    row.isDeleted = !row.isDeleted;
+    row.isDeleted = true;
     row.isEdited = true;
   }
 };
 
 // ** Modificado para usar `tableContent` **
 const apply = async () => {
-  let updateRows = tableContent.value.filter((row) => row.isEdited || row.isNew || row.isDeleted);
-  updateRows = updateRows.map((row) => {
+  let updateRows = tableContent.value.filter((row) => row.isEdited || row.isNew || row.isDeleted)
+  .map((row) => {
     const { selected, ...cleanedRow } = row;
-    return cleanedRow;
+    // Asegúrate de incluir isDeleted, isEdited, etc., si son necesarios
+    return {
+      ...cleanedRow,
+      isDeleted: row.isDeleted,  // Incluye explícitamente la propiedad
+      isEdited: row.isEdited,
+      isNew: row.isNew
+    };
   });
 
+  console.log('updateRows',updateRows);
+  
   try {
     const response: any = await $fetch(props.model, {
       method: "PUT",
@@ -206,9 +214,14 @@ const apply = async () => {
       $notyf.error(response.message || "Error al actualizar filas");
     }
   } catch (error) {
-    console.error("Error de red:", error);
-    $notyf.error("Error de conexión con el servidor.");
+  console.error("Error de red:", error);
+  if(error?.data?.message) $notyf.error(error.data.message)
+  if(error?.data?.errors){
+    for(const err of error.data.errors){
+      $notyf.error(`${err.field}: ${err.constraints}`);
+    }
   }
+}
 };
 
 // ** Modificado para usar `tableContent` **
@@ -228,7 +241,7 @@ onMounted(async () => {
   await fetchData();
   for (const column of props.head) {
     if (column.isSelect && column.model)
-      await select.fetchOptions(column.model, isLoading.value, token);
+      await select.fetchOptions(column.model, token);
   }
 });
 
@@ -239,9 +252,7 @@ const setActiveRow = (row: BodyTable) => {
 };
 
 const markAsEdited = (row: BodyTable) => {
-  if (!row.isEdited) {
-    row.isEdited = true;
-  }
+  row.isEdited = true;
 };
 
 const formatDate = (date) => {
@@ -297,7 +308,7 @@ const handleAffectedClick = (row: BodyTable) => {
             {{ action.title }}
           </button>
 
-          <button v-show="isEditable" @click="startEdit" class="text-sm lg:text-lg rounded bg-primary px-4 py-2 text-white">
+          <button v-if="!isEdit && isEditable" @click="startEdit" class="text-sm lg:text-lg rounded bg-primary px-4 py-2 text-white">
             Editar
           </button>
         </div>
@@ -368,7 +379,7 @@ const handleAffectedClick = (row: BodyTable) => {
                       column.key || '', // Siempre incluye el key como clase
                       'w-full rounded border  p-2 text-foreground', // Clases base
                       column.css && column.key ? `${column.key}-${row[column.key]}` : '' // Clases dinámicas opcionales
-                    ]" :disabled="!isEdit || column.isEditable === false">
+                    ]" :disabled="!isEdit || column.isEditable == false">
                       {{
                         CONSTANT_OPTIONS[column.key]?.find((option) => option.value == row[column.key])?.label ||
                         "Seleccionar"
@@ -409,7 +420,7 @@ const handleAffectedClick = (row: BodyTable) => {
                     :class="[
                       column.key || '',
                       'border-b-2 border-gray-300 bg-transparent dark:border-gray-700 w-full'
-                    ]" :disabled="!isEdit || column.isEditable === false" />
+                    ]" :disabled="!isEdit || column.isEditable == false" />
                 </div>
                 <div v-else-if="column.type === 'icon'" class="justify-items-center">
                   <button @click.stop="handleIconClick(row)" class="text-xl text-red-500 hover:text-red-700">
@@ -427,7 +438,7 @@ const handleAffectedClick = (row: BodyTable) => {
                     column.key || '', // Siempre incluye el key como clase
                     'border-b-2 border-gray-300 bg-transparent dark:border-gray-700 w-full', // Clases base
                     column.css && column.key ? `${column.key}-${row[column.key]}` : '' // Clases dinámicas opcionales
-                  ]" :disabled="!isEdit || column.isEditable === false" @input="markAsEdited(row)" />
+                  ]" :disabled="!isEdit || column.isEditable == false" @input="markAsEdited(row)" />
                 </div>
               </div>
             </td>

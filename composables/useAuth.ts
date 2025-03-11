@@ -47,7 +47,39 @@ export const useAuth = defineStore("auth", () => {
     navigateTo("/login");
   };
 
-  // Obtiene los datos del usuario autenticado
+  const login = async (email: string, password: string): Promise<void> => {
+    const { $notyf } = useNuxtApp();
+    try {
+      console.log("API Base:", useRuntimeConfig().public.apiBase);
+      console.log("🔄 Intentando login...");
+      const response = await $fetch(`${getApiBaseURL()}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: { email, password },
+      });
+      if (process.client) {
+        token.value = response.access_token;
+      }
+      await getUserDetails();
+      // Verificar que se haya obtenido información del usuario
+      if (!user.value) {
+        throw new Error("No se pudo obtener la información del usuario. Por favor, intente de nuevo.");
+      }
+      $notyf.success("Inicio de sesión exitoso. ¡Bienvenido!");
+      navigateTo("/location");
+    } catch (err: any) {
+      console.error("❌ Error al iniciar sesión:", err);
+      let msg = "Credenciales incorrectas.";
+      if (err?.data?.message) {
+        msg = err.data.message;
+      } else if (err?.message) {
+        msg = err.message;
+      }
+      error.value = msg;
+      $notyf.error(msg);
+    }
+  };
+
   const getUserDetails = async () => {
     if (isFetchingUser || !process.client || !token.value) return;
     isFetchingUser = true;
@@ -72,41 +104,28 @@ export const useAuth = defineStore("auth", () => {
     }
   };
 
-  // Inicia sesión y guarda el token en la cookie
-  const login = async (email: string, password: string) => {
-    try {
-      console.log("🔄 Intentando login...");
-      const response = await $fetch(`${getApiBaseURL()}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: { email, password },
-      });
-      if (process.client) {
-        token.value = response.access_token;
-      }
-      await getUserDetails();
-      if (isAuthenticated.value) {
-        console.log("✅ Usuario autenticado, redirigiendo...");
-        return navigateTo("/location");
-      }
-    } catch (err) {
-      console.error("❌ Error al iniciar sesión:", err);
-      error.value = "Credenciales incorrectas.";
-    }
-  };
 
-  const register = async (email: string, password: string, name: string) => {
+
+  const register = async (email: string, password: string, firstName: string, lastName: string, dni: number) => {
+    // Asumiendo que se ejecuta en el cliente y useNuxtApp está disponible
+    const { $notyf } = useNuxtApp();
     try {
-      return await $fetch(`${getApiBaseURL()}/auth/register`, {
+      const response = await $fetch(`${getApiBaseURL()}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: { email, password, name },
+        body: { email, password, firstName, lastName, dni },
       });
+      // Notificar al usuario de registro exitoso
+      $notyf.success("Registro exitoso. ¡Bienvenido!");
+      return response;
     } catch (error) {
       console.error("❌ Error en el registro:", error);
+      // Notificar al usuario del error en el registro
+      $notyf.error("Error en el registro. Verifica los datos ingresados.");
       throw new Error("Error en el registro. Verifica los datos ingresados.");
     }
   };
+
 
   return { user, error, isAuthenticated, isLoading, getUserDetails, login, logout, getToken, register };
 });

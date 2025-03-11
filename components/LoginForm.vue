@@ -1,33 +1,38 @@
 <script setup lang="ts">
-  import { ref } from "vue";
-  import { useAuth } from "../composables/useAuth";
-  import { useNuxtApp, navigateTo } from "#app"; // Importar useNuxtApp para acceder a $notyf
+import { ref } from "vue";
+import { useAuth } from "../composables/useAuth";
+import { useNuxtApp, navigateTo } from "#app";
 
-  const email = ref("");
-  const password = ref("");
-  const showPassword = ref(false);
+// No es necesario usar middleware "auth" para la página de login
+definePageMeta({
+  layout: false,
+});
 
-  // Usar el composable `useAuth`
-  const { login, error } = useAuth(); // Asegúrate de que login se utiliza correctamente
+const email = ref("");
+const password = ref("");
+const showPassword = ref(false);
 
-  // Función para cambiar la visibilidad de la contraseña
-  const togglePasswordVisibility = () => {
-    showPassword.value = !showPassword.value;
-  };
+// Usar el composable useAuth. Se asume que "login" retorna un objeto con "message" y "access_token" si es exitoso.
+const { login, error } = useAuth();
 
-  // Llamar a la función login cuando se envía el formulario
-  const handleLogin = async () => {
-    const { $notyf } = useNuxtApp(); // Acceder a $notyf desde useNuxtApp
+const togglePasswordVisibility = () => {
+  showPassword.value = !showPassword.value;
+};
 
-    await login(email.value, password.value);
-    if (error) {
-      // Mostrar un mensaje de error usando $notyf
-      $notyf.error("Error al iniciar sesión. Por favor, verifica tus credenciales.");
-    } else {
-      // Mostrar un mensaje de éxito usando $notyf
-      $notyf.success("Inicio de sesión exitoso. ¡Bienvenido de nuevo!");
-    }
-  };
+const handleLogin = async () => {
+  
+  const { $notyf } = useNuxtApp();
+  console.log('aca empezo ju');
+  const result = await login(email.value, password.value);
+  console.log("Resultado de login:", result);
+  if (!result || !result.success) {
+    $notyf.error(result ? result.message : "Error al iniciar sesión. Verifica tus credenciales.");
+  } else {
+    $notyf.success(result.message);
+    navigateTo("/renter");
+  }
+};
+
 </script>
 
 <template>
@@ -39,54 +44,62 @@
         id="email"
         type="email"
         required
-        class="mt-1 block w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
+        class="login-input"
       />
     </div>
 
     <div class="mb-4">
-      <label for="password" class="block text-sm font-medium">Password</label>
+      <label for="password" class="block text-sm font-medium">Contraseña</label>
       <div class="relative">
         <input
           v-model="password"
           :type="showPassword ? 'text' : 'password'"
           id="password"
           required
-          class="mt-1 block w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
+          class="login-input"
         />
         <button
-          type="button"
           @click="togglePasswordVisibility"
-          class="absolute inset-y-0 right-0 flex items-center px-2"
+          type="button"
+          class="absolute inset-y-0 right-2 flex items-center px-2"
         >
           <Icon
             :name="showPassword ? 'heroicons:eye-off' : 'heroicons:eye'"
-            class="h-5 w-5 text-muted-foreground"
+            class="h-5 w-5 text-gray-500"
           />
         </button>
       </div>
     </div>
 
-    <button
-      type="submit"
-      class="to-white-500 hover:to-grey-600 w-full rounded-md bg-gradient-to-b from-blue-500 px-4 py-2 text-white shadow-lg hover:from-blue-600"
-    >
-      Log In
+    <button type="submit" class="btn-primary w-full">
+      Iniciar Sesión
     </button>
+
+    <p class="text-sm text-gray-500 mt-4">
+      ¿No tienes usuario?
+      <NuxtLink to="/register" class="text-primary hover:underline">
+        Regístrate aquí
+      </NuxtLink>
+    </p>
   </form>
 </template>
 
-<style>
-  /* LoginForm.vue */
-  .form-container {
-    max-width: 400px;
-    width: 100%;
-    padding: 20px;
-    background-color: rgba(0, 0, 0, 0.5);
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  }
+<style scoped>
+/* Estilos para el formulario de login */
+.form-container {
+  max-width: 400px;
+  width: 100%;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
 
-  .gradient-background {
-    background: linear-gradient(180deg, var(--primary), var(--secondary));
-  }
+.login-input {
+  @apply block w-full rounded-md border border-gray-300 bg-background px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary;
+}
+
+.btn-primary {
+  @apply w-full rounded-md bg-gradient-to-b from-blue-500 to-blue-700 px-4 py-2 font-bold text-white shadow-lg hover:from-blue-600;
+}
 </style>

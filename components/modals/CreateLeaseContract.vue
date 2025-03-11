@@ -153,9 +153,9 @@ const submitForm = async () => {
     emit("create", createdContract);
     resetModal();
   } catch (error: any) {
-    console.error("Error al crear el contrato desde PDF:", error);
-    $notyf.error("Error al crear el contrato. Inténtelo nuevamente.");
-  }
+  console.error("Error al crear el contrato desde PDF:", error);
+}
+
 };
 </script>
 

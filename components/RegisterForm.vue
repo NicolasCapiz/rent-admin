@@ -8,6 +8,7 @@ const password = ref("");
 const confirmPassword = ref("");
 const firstName = ref("");
 const lastName = ref("");
+const dni = ref(0);
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
 
@@ -28,13 +29,13 @@ const handleRegister = async () => {
     return;
   }
 
-  await register(email.value, password.value, firstName.value, lastName.value);
+  await register(email.value, password.value, firstName.value,lastName.value, dni.value);
 
   if (error.value) {
     $notyf.error("Error al registrarse. Intenta nuevamente.");
   } else {
-    $notyf.success("Registro exitoso. ¡Por favor, inicia sesión!");
-    navigateTo("/login");
+    // $notyf.success("Registro exitoso. ¡Por favor, inicia sesión!");
+    navigateTo("/location");
   }
 };
 </script>
@@ -52,6 +53,10 @@ const handleRegister = async () => {
       <div class="mb-4">
         <label class="block text-white font-medium">Apellido</label>
         <input v-model="lastName" type="text" required class="input" />
+      </div>
+      <div class="mb-4">
+        <label class="block text-white font-medium">Dni</label>
+        <input v-model="dni" type="number" required class="input" />
       </div>
 
       <div class="mb-4">

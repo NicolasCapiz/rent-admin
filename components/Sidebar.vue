@@ -17,7 +17,7 @@
         <!-- Botón de Logout -->
         <Button
           icon="heroicons:arrow-left-on-rectangle"
-          title="Logout"
+          title="Cerrar Sesion"
           @click="handleLogout"
         />
       </div>
@@ -46,8 +46,8 @@ const menu = [
 ];
 
 const bottomMenu = [
-  { title: "Settings", icons: "heroicons:cog-8-tooth", link: "/settings" },
-  { title: "Help", icons: "heroicons:question-mark-circle", link: "/help" },
+  { title: "Configuraciones", icons: "heroicons:cog-8-tooth", link: "/settings" },
+  { title: "Ayuda", icons: "heroicons:question-mark-circle", link: "/help" },
 ];
 
 // Función para cerrar el sidebar en pantallas pequeñas

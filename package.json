@@ -7,8 +7,9 @@
     "email": "nicolascapiz@gmail.com"
   },
   "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev --host",
+    "dev": "NODE_ENV=development nuxt dev --port 3305",
+    "build": "NODE_ENV=production nuxt build",
+    "start": "NODE_ENV=production nuxt start",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
@@ -19,7 +20,7 @@
     "@eslint/js": "^9.15.0",
     "@nuxtjs/tailwindcss": "^6.10.3",
     "@types/chart.js": "^2.9.41",
-    "@types/node": "^20.10.6",
+    "@types/node": "^20.17.24",
     "@typescript-eslint/eslint-plugin": "^8.14.0",
     "@typescript-eslint/parser": "^8.14.0",
     "eslint": "^9.15.0",

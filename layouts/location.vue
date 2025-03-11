@@ -38,6 +38,7 @@
       title: "Inquilino",
       key: "renterId",
       model: "users",
+      isEditable:"false",
       isSelect: true,
       selectKey: "firstName",
     },

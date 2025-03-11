@@ -26,7 +26,7 @@ export const leaseContractService = {
           Authorization: `Bearer ${token}`,
         },
       });
-      $notyf.success("Contratos obtenidos correctamente");
+      // $notyf.success("Contratos obtenidos correctamente");
       return response;
     } catch (error) {
       console.error("Error al obtener los contratos de arrendamiento:", error);
@@ -181,6 +181,8 @@ export const leaseContractService = {
     const auth = useAuth();
     const token = auth.getToken();
     const { $notyf } = useNuxtApp();
+    const apiBaseURL = useRuntimeConfig().public.apiBase;
+
     try {
       if (!token) {
         throw new Error("Token no encontrado");
@@ -195,12 +197,24 @@ export const leaseContractService = {
       });
       $notyf.success("Contrato creado a partir de los datos del PDF correctamente");
       return response;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error al crear el contrato desde PDF:", error);
-      $notyf.error("Error al crear el contrato desde PDF");
-      throw new Error("Error al crear el contrato desde PDF");
+      // Construir un mensaje a partir de los errores que venga el backend, o usar uno genérico
+      let errorMsg = "Error al crear el contrato desde PDF. Inténtelo nuevamente.";
+      if (error?.data?.errors && Array.isArray(error.data.errors)) {
+        errorMsg = error.data.errors
+          .map((err: any) => `${err.field}: ${err.constraints}`)
+          .join(" | ");
+      } else if (error?.data?.message) {
+        errorMsg = error.data.message;
+      } else if (error?.message) {
+        errorMsg = error.message;
+      }
+      $notyf.error(errorMsg);
+      throw new Error(errorMsg);
     }
   },
+
 
   /**
    * Función adicional para generar el PDF del contrato (si es necesario).
