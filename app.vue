@@ -1,54 +1,53 @@
 <script setup lang="ts">
-  import { useAuth } from "./composables/useAuth";
-  import { computed, ref, onMounted } from "vue";
-  import { useRoute } from "#app";
-  import "@fortawesome/fontawesome-free/css/all.min.css";
+import { computed, ref, onMounted, watch } from "vue";
+import { useAuth } from "./composables/useAuth";
+import { useRoute, useNuxtApp } from "#app";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 
-  // Obtener el estado de autenticación
-  // const { isAuthenticated } = useAuth();
-  const isAuthenticated = ref(false);
+const route = useRoute();
 
-  // Obtener la ruta actual
-  const route = useRoute();
+const isAuthenticated = ref(false);
+const isClientChecked = ref(false);
 
-  // Ref para controlar si la autenticación ha sido chequeada en el cliente
-  const isClientChecked = ref(false);
+// Ejecutar en el cliente: obtener detalles del usuario y sincronizar el estado
+onMounted(() => {
+  if (process.client) {
+    const auth = useAuth();
+    auth.getUserDetails();
 
-  // Ejecutar solo en el cliente
-  onMounted(() => {
-    if(process.client){
-      const auth = useAuth();
-      auth.getUserDetails();
-      isAuthenticated.value = auth.isAuthenticated;
-      isClientChecked.value = true; // Se asegura de que estamos en el cliente
-    }
-  });
-
-  // Computed para verificar si mostrar el Header y Sidebar
-  const shouldShowHeaderAndSidebar = computed(() => {
-    // Si no hemos chequeado el cliente aún, no mostrar el header
-    if (!isClientChecked.value) return false;
-    console.log("isAuthenticated.value", isAuthenticated);
-
-    // Verificar si está autenticado y en rutas específicas
-    return (
-      isAuthenticated &&
-      route.path !== "/home" &&
-      route.path !== "/login" &&
-      route.path !== "/register"
+    // Sincronizar el estado autenticado usando un watcher
+    watch(
+      () => auth.isAuthenticated,
+      (newVal) => {
+        isAuthenticated.value = newVal;
+      },
+      { immediate: true }
     );
-  });
-  const valuePathNeutral = computed(() => {
-    return route.path == "/home" || route.path == "/login" || route.path == "/register";
-  });
 
+    isClientChecked.value = true;
+  }
+});
 
-  const nuxtApp = useNuxtApp();
-  console.log(nuxtApp.$config);
+// Computed que determina si se deben mostrar el Header y el Sidebar
+const shouldShowHeaderAndSidebar = computed(() => {
+  if (!isClientChecked.value) return false;
+  console.log("isAuthenticated.value", isAuthenticated.value);
+  return (
+    isAuthenticated.value &&
+    route.path !== "/home" &&
+    route.path !== "/login" &&
+    route.path !== "/register"
+  );
+});
 
+// Computed para identificar rutas "neutras"
+const valuePathNeutral = computed(() => {
+  return route.path === "/home" || route.path === "/login" || route.path === "/register";
+});
 
+const nuxtApp = useNuxtApp();
+console.log(nuxtApp.$config);
 </script>
-
 <template>
   <div class="flex min-h-screen flex-col">
     <!-- Mostrar el Header solo si el usuario está autenticado y no está en /home -->

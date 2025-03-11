@@ -95,5 +95,18 @@ export const useAuth = defineStore("auth", () => {
     }
   };
 
-  return { user, error, isAuthenticated, isLoading, getUserDetails, login, logout, getToken };
+  const register = async (email: string, password: string, name: string) => {
+    try {
+      return await $fetch(`${getApiBaseURL()}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: { email, password, name },
+      });
+    } catch (error) {
+      console.error("❌ Error en el registro:", error);
+      throw new Error("Error en el registro. Verifica los datos ingresados.");
+    }
+  };
+
+  return { user, error, isAuthenticated, isLoading, getUserDetails, login, logout, getToken, register };
 });
