@@ -8,7 +8,8 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_URL || "http://localhost:3307"
+      // apiBase: process.env.NUXT_PUBLIC_API_URL || "http://localhost:3307"
+      apiBase: process.env.NUXT_PUBLIC_API_URL || "http://localhost:3001"
     },
   },
   css: ['@fortawesome/fontawesome-free/css/all.min.css',
