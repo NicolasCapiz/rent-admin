@@ -183,6 +183,8 @@ export const useAuth = defineStore("auth", () => {
     const { $notyf } = useNuxtApp();
 
     try {
+      console.log('loiola');
+
       console.log("API Base:", apiBaseURL);
       console.log("🔄 Intentando login...");
 
