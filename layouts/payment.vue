@@ -20,7 +20,9 @@ const head = ref<HeadTable[]>([
   { title: "Método de Pago",key: "paymentMethodId",isSelect: true, selectKey: "name", model: "paymentMethods"},
   { title: "Local", key: "locationId", isSelect: true, selectKey: "name", model: "locations" },
   { title: "Monto", key: "amount", type: "number" },
-  { title: "Fecha", key: "date", type: "date" },
+  { title: "Dia", key: "day", type: "number" },
+  { title: "Mes", key: "month", type: "number" },
+  { title: "Año", key: "year", type: "number" },
 ]);
 
 const isCreatePaymentModalOpen = ref(false);
